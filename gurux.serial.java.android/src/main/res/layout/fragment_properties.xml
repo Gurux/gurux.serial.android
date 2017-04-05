@@ -1,0 +1,11 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="gurux.serial.java.android.gurux.serial.GXProperties2">
+    <ListView
+        android:id="@+id/properties"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+    </ListView>
+</FrameLayout>
