@@ -10,4 +10,5 @@
     <usb-device vendor-id="1659" product-id="8963" class="255" subclass="0" protocol="0" />
     <!-- FTDI -->
     <usb-device vendor-id="1027" product-id="24557" class="255" subclass="0" protocol="0" />
+    <usb-device vendor-id="1027" product-id="6001" class="255" subclass="255" protocol="255" />
 </resources>
