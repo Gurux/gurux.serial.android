@@ -32,40 +32,24 @@
 // Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
 //---------------------------------------------------------------------------
 
-group = "org.gurux"
-apply plugin: 'java'
 buildscript {
     repositories {
-        mavenCentral()
         jcenter()
+        google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
+        classpath 'com.android.tools.build:gradle:3.1.2'
     }
 }
 
 allprojects {
     repositories {
-        mavenCentral()
+        maven { url 'https://jitpack.io' }
+        google()
+        jcenter()
     }
 }
 
-javadoc {
-    source = sourceSets.main.java.srcDirs
-    classpath = configurations.compile
-    destinationDir = file("javadoc/")
+task clean(type: Delete) {
+    delete rootProject.buildDir
 }
-
-def isReleaseBuild() {
-    return version.contains("SNAPSHOT") == false
-}
-
-allprojects {
-    version = VERSION_NAME
-    group = GROUP
-
-    repositories {
-        mavenCentral()
-    }
-}
-apply plugin: 'android-reporting'
