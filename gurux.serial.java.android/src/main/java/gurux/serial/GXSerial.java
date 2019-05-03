@@ -47,7 +47,7 @@ import java.util.Map;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -69,7 +69,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import gurux.common.GXCommon;
 import gurux.common.GXSync;
 import gurux.common.GXSynchronousMediaBase;
-import gurux.common.IGXMedia;
+import gurux.common.IGXMedia2;
 import gurux.common.IGXMediaListener;
 import gurux.common.MediaStateEventArgs;
 import gurux.common.PropertyChangedEventArgs;
@@ -90,8 +90,11 @@ import gurux.serial.java.android.R;
  * The GXSerial component determines methods that make the communication possible using serial port
  * connection.
  */
-public class GXSerial implements IGXMedia, AutoCloseable {
+public class GXSerial implements IGXMedia2, AutoCloseable {
 
+    private int receiveDelay;
+
+    private int asyncWaitTime;
     /**
      * List of available serial ports.
      */
@@ -371,7 +374,6 @@ public class GXSerial implements IGXMedia, AutoCloseable {
                 return;
             }
         }
-        in = out = null;
         for (int i = 0; i != device.getInterfaceCount(); ++i) {
             UsbInterface usbIf = device.getInterface(i);
             for (int pos = 0; pos != usbIf.getEndpointCount(); ++pos) {
@@ -1249,5 +1251,30 @@ public class GXSerial implements IGXMedia, AutoCloseable {
         if (listener instanceof IGXSerialListener) {
             mPortListeners.remove((IGXSerialListener) listener);
         }
+    }
+
+    @Override
+    public int getReceiveDelay() {
+        return receiveDelay;
+    }
+
+    @Override
+    public void setReceiveDelay(final int value) {
+        receiveDelay = value;
+    }
+
+    @Override
+    public int getAsyncWaitTime() {
+        return asyncWaitTime;
+    }
+
+    @Override
+    public void setAsyncWaitTime(final int value) {
+        asyncWaitTime = value;
+    }
+
+    @Override
+    public Object getAsyncWaitHandle() {
+        return null;
     }
 }

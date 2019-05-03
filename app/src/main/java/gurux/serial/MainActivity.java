@@ -415,6 +415,6 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener 
             serial.close();
             serial = null;
         }
-        super.onStop();
+        super.onDestroy();
     }
 }

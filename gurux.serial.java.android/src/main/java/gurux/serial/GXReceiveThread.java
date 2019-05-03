@@ -173,6 +173,11 @@ class GXReceiveThread extends Thread {
                     len = mChipset.removeStatus(buff, len, buff.length);
                 }
                 if (len > 0) {
+                    Thread.sleep(mParentMedia.getReceiveDelay());
+                    int len2 = mConnection.bulkTransfer(mInput, buff, len, buff.length - len, WAIT_TIME);
+                    if (len2 > 0) {
+                        len += len2;
+                    }
                     handleReceivedData(buff, len);
                 }
             } catch (Exception ex) {
