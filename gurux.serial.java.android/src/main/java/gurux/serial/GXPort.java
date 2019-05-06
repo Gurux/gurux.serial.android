@@ -34,10 +34,6 @@
 
 package gurux.serial;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-
 import gurux.common.GXCommon;
 import gurux.serial.enums.Chipset;
 

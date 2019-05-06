@@ -38,8 +38,7 @@ import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDeviceConnection;
 
 import java.io.IOException;
-import gurux.common.GXCommon;
-import gurux.io.Parity;
+
 import gurux.io.StopBits;
 import gurux.serial.enums.Chipset;
 

@@ -34,10 +34,11 @@
 
 package gurux.serial;
 
-import java.lang.reflect.Array;
-
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
+
+import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Array;
 
 import gurux.common.GXSynchronousMediaBase;
 import gurux.common.ReceiveEventArgs;
@@ -173,11 +174,17 @@ class GXReceiveThread extends Thread {
                     len = mChipset.removeStatus(buff, len, buff.length);
                 }
                 if (len > 0) {
-                    Thread.sleep(mParentMedia.getReceiveDelay());
-                    int len2 = mConnection.bulkTransfer(mInput, buff, len, buff.length - len, WAIT_TIME);
-                    if (len2 > 0) {
+                    long start = System.currentTimeMillis();
+                    int elapsedTime = 0;
+                    ByteArrayOutputStream tmp = new ByteArrayOutputStream();
+                    tmp.write(buff);
+                    int len2;
+                    while ((len2 = mConnection.bulkTransfer(mInput, buff, 0, buff.length, mParentMedia.getReceiveDelay() - elapsedTime)) > 0) {
+                        tmp.write(buff, 0, len2);
                         len += len2;
+                        elapsedTime = (int) (System.currentTimeMillis() - start);
                     }
+                    buff = tmp.toByteArray();
                     handleReceivedData(buff, len);
                 }
             } catch (Exception ex) {
