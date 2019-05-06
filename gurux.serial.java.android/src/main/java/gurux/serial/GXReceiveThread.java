@@ -177,14 +177,13 @@ class GXReceiveThread extends Thread {
                     long start = System.currentTimeMillis();
                     int elapsedTime = 0;
                     ByteArrayOutputStream tmp = new ByteArrayOutputStream();
-                    tmp.write(buff);
-                    int len2;
-                    while ((len2 = mConnection.bulkTransfer(mInput, buff, 0, buff.length, mParentMedia.getReceiveDelay() - elapsedTime)) > 0) {
-                        tmp.write(buff, 0, len2);
-                        len += len2;
+                    tmp.write(buff, 0, len);
+                    while ((len = mConnection.bulkTransfer(mInput, buff, 0, buff.length, mParentMedia.getReceiveDelay() - elapsedTime)) > 0) {
+                        tmp.write(buff, 0, len);
                         elapsedTime = (int) (System.currentTimeMillis() - start);
                     }
                     buff = tmp.toByteArray();
+                    len = buff.length;
                     handleReceivedData(buff, len);
                 }
             } catch (Exception ex) {
