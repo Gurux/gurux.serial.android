@@ -181,6 +181,10 @@ class GXReceiveThread extends Thread {
                     while ((len = mConnection.bulkTransfer(mInput, buff, 0, buff.length, mParentMedia.getReceiveDelay() - elapsedTime)) > 0) {
                         tmp.write(buff, 0, len);
                         elapsedTime = (int) (System.currentTimeMillis() - start);
+                        if (mParentMedia.getReceiveDelay() - elapsedTime < 1)
+                        {
+                            break;
+                        }
                     }
                     buff = tmp.toByteArray();
                     len = buff.length;
