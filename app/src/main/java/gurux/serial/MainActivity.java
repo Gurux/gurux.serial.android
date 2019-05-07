@@ -36,11 +36,9 @@ package gurux.serial;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -301,6 +299,12 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener 
     public void showInfo(View view) {
         try {
             GXPort port = (GXPort) portList.getSelectedItem();
+
+            //Mikko
+            serial.setPort(((GXPort) portList.getSelectedItem()));
+            serial.properties(this);
+            return;
+            /*
             String info = "";
             if (port != null) {
                 info = port.getInfo();
@@ -315,6 +319,7 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener 
                     })
                     .setIcon(android.R.drawable.ic_dialog_info)
                     .show();
+                    */
         } catch (Exception ex) {
             openBtn.setEnabled(false);
             showError(ex);

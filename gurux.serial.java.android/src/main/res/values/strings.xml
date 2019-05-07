@@ -9,4 +9,5 @@
     <string name="stopBits">Stop bits</string>
     <string name="port">Port</string>
     <string name="chipset">Chipset</string>
+    <string name="infoBtn">Info</string>
 </resources>

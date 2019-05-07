@@ -34,10 +34,13 @@
 
 package gurux.serial;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ListView;
 
 import gurux.serial.java.android.R;
@@ -85,5 +88,27 @@ public class GXProperties extends AppCompatActivity {
         super.onDestroy();
     }
 
-    ;
+    /*
+     * Show serial port info.
+     */
+    public void showInfo(View view) {
+        try {
+            GXPort port = base.getSerial().getPort();
+            String info = "";
+            if (port != null) {
+                info = port.getInfo();
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Info")
+                    .setMessage(info)
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            //Do nothing.
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_info)
+                    .show();
+        } catch (Exception ex) {
+        }
+    }
 }
