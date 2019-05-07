@@ -180,11 +180,11 @@ class GXReceiveThread extends Thread {
                         ByteArrayOutputStream tmp = new ByteArrayOutputStream();
                         tmp.write(buff, 0, len);
                         while ((len = mConnection.bulkTransfer(mInput, buff, 0, buff.length, mParentMedia.getReceiveDelay() - elapsedTime)) > 0) {
-                            len = mChipset.removeStatus(buff, len, buff.length);
+                            if (mChipset != null && len > 0) {
+                                len = mChipset.removeStatus(buff, len, buff.length);
+                            }
                             if (len > 0) {
                                 tmp.write(buff, 0, len);
-                            } else {
-                                Thread.sleep(50);
                             }
                             elapsedTime = (int) (System.currentTimeMillis() - start);
                             if (mParentMedia.getReceiveDelay() - elapsedTime < 1) {
