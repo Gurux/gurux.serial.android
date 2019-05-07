@@ -174,20 +174,21 @@ class GXReceiveThread extends Thread {
                     len = mChipset.removeStatus(buff, len, buff.length);
                 }
                 if (len > 0) {
-                    long start = System.currentTimeMillis();
-                    int elapsedTime = 0;
-                    ByteArrayOutputStream tmp = new ByteArrayOutputStream();
-                    tmp.write(buff, 0, len);
-                    while ((len = mConnection.bulkTransfer(mInput, buff, 0, buff.length, mParentMedia.getReceiveDelay() - elapsedTime)) > 0) {
+                    if (mParentMedia.getReceiveDelay() > 0) {
+                        long start = System.currentTimeMillis();
+                        int elapsedTime = 0;
+                        ByteArrayOutputStream tmp = new ByteArrayOutputStream();
                         tmp.write(buff, 0, len);
-                        elapsedTime = (int) (System.currentTimeMillis() - start);
-                        if (mParentMedia.getReceiveDelay() - elapsedTime < 1)
-                        {
-                            break;
+                        while ((len = mConnection.bulkTransfer(mInput, buff, 0, buff.length, mParentMedia.getReceiveDelay() - elapsedTime)) > 0) {
+                            tmp.write(buff, 0, len);
+                            elapsedTime = (int) (System.currentTimeMillis() - start);
+                            if (mParentMedia.getReceiveDelay() - elapsedTime < 1) {
+                                break;
+                            }
                         }
+                        buff = tmp.toByteArray();
+                        len = buff.length;
                     }
-                    buff = tmp.toByteArray();
-                    len = buff.length;
                     handleReceivedData(buff, len);
                 }
             } catch (Exception ex) {
