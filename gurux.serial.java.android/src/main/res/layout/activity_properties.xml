@@ -16,9 +16,9 @@
         android:orientation="vertical">
 
         <Button
+            android:id="@+id/showInfo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:onClick="showInfo"
             android:text="@string/infoBtn" />
 
         <ListView

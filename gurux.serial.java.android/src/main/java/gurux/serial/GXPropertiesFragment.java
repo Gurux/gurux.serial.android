@@ -41,6 +41,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 
 import gurux.serial.java.android.R;
@@ -50,6 +51,7 @@ import gurux.serial.java.android.R;
  */
 public class GXPropertiesFragment extends Fragment {
     GXPropertiesBase base;
+    Button mShowInfo;
 
     public GXPropertiesFragment() {
     }
@@ -64,6 +66,31 @@ public class GXPropertiesFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_properties, container, false);
         base = new GXPropertiesBase((ListView) view.findViewById(R.id.properties), getActivity());
+        //Show serial port info.
+        mShowInfo = view.findViewById(R.id.showInfo);
+        mShowInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                try {
+                    GXPort port = base.getSerial().getPort();
+                    String info = "";
+                    if (port != null) {
+                        info = port.getInfo();
+                    }
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Info")
+                            .setMessage(info)
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //Do nothing.
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_info)
+                            .show();
+                } catch (Exception ex) {
+                }
+            }
+        });
         return view;
     }
 
@@ -73,29 +100,5 @@ public class GXPropertiesFragment extends Fragment {
             base.close();
         }
         super.onDestroy();
-    }
-
-    /*
-     * Show serial port info.
-     */
-    public void showInfo(View view) {
-        try {
-            GXPort port = base.getSerial().getPort();
-            String info = "";
-            if (port != null) {
-                info = port.getInfo();
-            }
-            new AlertDialog.Builder(getContext())
-                    .setTitle("Info")
-                    .setMessage(info)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            //Do nothing.
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_info)
-                    .show();
-        } catch (Exception ex) {
-        }
     }
 }
