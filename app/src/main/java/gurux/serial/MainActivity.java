@@ -299,12 +299,6 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener 
     public void showInfo(View view) {
         try {
             GXPort port = (GXPort) portList.getSelectedItem();
-
-            //Mikko
-            serial.setPort(((GXPort) portList.getSelectedItem()));
-            serial.properties(this);
-            return;
-            /*
             String info = "";
             if (port != null) {
                 info = port.getInfo();
@@ -319,7 +313,6 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener 
                     })
                     .setIcon(android.R.drawable.ic_dialog_info)
                     .show();
-                    */
         } catch (Exception ex) {
             openBtn.setEnabled(false);
             showError(ex);
