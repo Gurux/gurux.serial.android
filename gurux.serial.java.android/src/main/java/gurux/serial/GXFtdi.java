@@ -99,6 +99,15 @@ class GXFtdi extends GXChipset {
      */
     private static final int STATUS_LENGTH = 2;
 
+    private static final int SIO_SET_DTR_ENABLED = 0x0101;
+    private static final int SIO_SET_DTR_DISABLED = 0x0100;
+
+    private static final int SIO_SET_RTS_ENABLED = 0x0202;
+    private static final int SIO_SET_RTS_DISABLED = 0x0200;
+
+    private boolean mDtrEnable = false;
+    private boolean mRtsEnable = false;
+
     public static boolean isUsing(final String stringManufacturer, final int vendor, final int product) {
         if ((vendor == 1027 && product == 24557) ||
             (vendor == 1027 && product == 24577) ||
@@ -179,5 +188,35 @@ class GXFtdi extends GXChipset {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public boolean getDtrEnable(final UsbDeviceConnection connection) {
+        return mDtrEnable;
+    }
+
+    @Override
+    public void setDtrEnable(final UsbDeviceConnection connection, final boolean value) throws IOException {
+        int ret = connection.controlTransfer(FTDI_SIO_SET_DATA_REQUEST_TYPE, FTDI_SIO_MODEM_CTRL,
+                value ? SIO_SET_DTR_ENABLED : SIO_SET_DTR_DISABLED, 0 , null, 0, 0);
+        if (ret != 0) {
+            throw new IOException("Set DTR failed: " + ret);
+        }
+        mDtrEnable = value;
+    }
+
+    @Override
+    public boolean getRtsEnable(final UsbDeviceConnection connection) {
+        return mRtsEnable;
+    }
+
+    @Override
+    public void setRtsEnable(final UsbDeviceConnection connection, final boolean value) throws IOException  {
+        int ret = connection.controlTransfer(FTDI_SIO_SET_DATA_REQUEST_TYPE, FTDI_SIO_MODEM_CTRL,
+                value ? SIO_SET_RTS_ENABLED : SIO_SET_RTS_DISABLED, 0 , null, 0, 0);
+        if (ret != 0) {
+            throw new IOException("Set DTR failed: " + ret);
+        }
+        mRtsEnable = value;
     }
 }

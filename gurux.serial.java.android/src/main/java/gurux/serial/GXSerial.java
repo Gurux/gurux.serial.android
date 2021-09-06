@@ -856,6 +856,65 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     }
 
     /**
+     * Get is Data Terminal Ready (DTR) signal enabled.
+     *
+     * @return Is DTR enabled.
+     */
+    public final boolean getDtrEnable() {
+        if (isOpen()) {
+            return mChipset.getDtrEnable(mConnection);
+        }
+        return false;
+    }
+
+    /**
+     * Set is Data Terminal Ready (DTR) signal enabled.
+     *
+     * @param value
+     *            Is DTR enabled.
+     */
+    public final void setDtrEnable(final boolean value) throws IOException  {
+        if (isOpen())
+        {
+            boolean change = getDtrEnable() != value;
+            mChipset.setDtrEnable(mConnection, value);
+            if (change) {
+                notifyPropertyChanged("DtrEnable");
+            }
+        }
+    }
+
+    /**
+     * Gets a value indicating whether the Request to Send (RTS) signal is
+     * enabled during serial communication.
+     *
+     * @return Is RTS enabled.
+     */
+    public final boolean getRtsEnable() {
+        if (isOpen()) {
+            return mChipset.getRtsEnable(mConnection);
+        }
+        return false;
+    }
+
+    /**
+     * Sets a value indicating whether the Request to Send (RTS) signal is
+     * enabled during serial communication.
+     *
+     * @param value
+     *            Is RTS enabled.
+     */
+    public final void setRtsEnable(final boolean value) throws IOException  {
+        if (isOpen()) {
+            boolean change = getRtsEnable() != value;
+            mChipset.setRtsEnable(mConnection, value);
+            if (change) {
+                notifyPropertyChanged("RtsEnable");
+            }
+        }
+    }
+
+    /**
      * Used serial port chipset.
      *
      * @return Used chipset.

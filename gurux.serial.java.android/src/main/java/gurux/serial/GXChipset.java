@@ -77,4 +77,36 @@ abstract class GXChipset {
     }
 
     abstract boolean open(GXSerial serial, UsbDeviceConnection connection, byte[] rawDescriptors) throws IOException;
+
+    /**
+     * Get is Data Terminal Ready (DTR) signal enabled.
+     *
+     * @return Is DTR enabled.
+     */
+    abstract boolean getDtrEnable(final UsbDeviceConnection connection);
+
+    /**
+     * Set is Data Terminal Ready (DTR) signal enabled.
+     *
+     * @param value
+     *            Is DTR enabled.
+     */
+    abstract void setDtrEnable(final UsbDeviceConnection connection, final boolean value) throws IOException;
+
+    /**
+     * Gets a value indicating whether the Request to Send (RTS) signal is
+     * enabled during serial communication.
+     *
+     * @return Is RTS enabled.
+     */
+    abstract boolean getRtsEnable(final UsbDeviceConnection connection);
+
+    /**
+     * Sets a value indicating whether the Request to Send (RTS) signal is
+     * enabled during serial communication.
+     *
+     * @param value
+     *            Is RTS enabled.
+     */
+    abstract void setRtsEnable(final UsbDeviceConnection connection, final boolean value)throws IOException;
 }

@@ -64,7 +64,7 @@ class GXProfilic extends GXChipset {
             | UsbConstants.USB_TYPE_VENDOR;
 
     public static boolean isUsing(final String stringManufacturer, int vendor, int product) {
-        /**Aten UC-232*/
+        /*Aten UC-232*/
         if ((vendor == 0x557 && product == 0x2008) ||
                 /*Prolific BF-810*/
                 (vendor == 1659 && product == 8963)) {
@@ -132,5 +132,24 @@ class GXProfilic extends GXChipset {
                     0x24, null, 0, 1000);
         }
         return true;
+    }
+    @Override
+    boolean getDtrEnable(final UsbDeviceConnection connection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    void setDtrEnable(final UsbDeviceConnection connection, boolean value)  {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    boolean getRtsEnable(final UsbDeviceConnection connection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    void setRtsEnable(final UsbDeviceConnection connection, boolean value) {
+        throw new UnsupportedOperationException();
     }
 }

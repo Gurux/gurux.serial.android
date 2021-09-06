@@ -290,7 +290,7 @@ class GXCh34x extends GXChipset {
         //Set baud rate.
         ret = connection.controlTransfer(64, 154, 4882, 55682, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Init failed2: " + String.valueOf(ret));
+            throw new IOException("Init set baud rate failed: " + String.valueOf(ret));
         }
         ret = connection.controlTransfer(64, 154, 3884, 4, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
@@ -299,18 +299,37 @@ class GXCh34x extends GXChipset {
         //End baud rate.
         ret = connection.controlTransfer(64, 154, 10023, 0, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Init failed4: " + String.valueOf(ret));
+            throw new IOException("Init End baud rate failed: " + String.valueOf(ret));
         }
-
         //writeHandshakeByte
         ret = connection.controlTransfer(64, 164, 255, 0, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Init failed5: " + String.valueOf(ret));
+            throw new IOException("Init writeHandshakeByte failed: " + String.valueOf(ret));
         }
         setConfig(serial, connection);
 
         //Set baud rate
         //setBaudRate(mConnection, serial.getBaudRate().getValue());
         return true;
+    }
+
+    @Override
+    boolean getDtrEnable(final UsbDeviceConnection connection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    void setDtrEnable(final UsbDeviceConnection connection, final boolean value)  {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    boolean getRtsEnable(final UsbDeviceConnection connection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    void setRtsEnable(final UsbDeviceConnection connection, final boolean value) {
+        throw new UnsupportedOperationException();
     }
 }

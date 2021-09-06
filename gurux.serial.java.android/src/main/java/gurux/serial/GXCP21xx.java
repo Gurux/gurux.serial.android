@@ -427,4 +427,23 @@ class GXCP21xx extends GXChipset {
         }
         return true;
     }
+    @Override
+    boolean getDtrEnable(final UsbDeviceConnection connection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    void setDtrEnable(final UsbDeviceConnection connection, boolean value) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    boolean getRtsEnable(final UsbDeviceConnection connection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    void setRtsEnable(final UsbDeviceConnection connection, boolean value) {
+        throw new UnsupportedOperationException();
+    }
 }
