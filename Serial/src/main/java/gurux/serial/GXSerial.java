@@ -209,6 +209,11 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
         }
         mContext = context;
         mUsbReciever = new GXUsbReciever(this);
+        String name = "gurux.serial";
+        IntentFilter filter2 = new IntentFilter(name);
+        filter2.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        filter2.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        mContext.registerReceiver(mUsbReciever, filter2);
         mSyncBase = new GXSynchronousMediaBase(200);
         setConfigurableSettings(AvailableMediaSettings.ALL.getValue());
     }
@@ -367,7 +372,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
         byte[] buffer = new byte[255];
         String name = "gurux.serial";
         PendingIntent permissionIntent = PendingIntent.getBroadcast(mContext, 0,
-                new Intent(name), 0);
+                new Intent(name),  PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         UsbEndpoint in = null, out = null;
         if (!manager.hasPermission(device)) {
             manager.requestPermission(device, permissionIntent);
@@ -438,17 +443,18 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      */
     public GXPort[] getPorts() {
         synchronized (GXPort.class) {
-            if (mPorts == null) {
-                String name = "gurux.serial";
-                IntentFilter filter2 = new IntentFilter(name);
-                filter2.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-                filter2.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-                mContext.registerReceiver(mUsbReciever, filter2);
+           if (mPorts == null)
+           {
                 mPorts = new ArrayList<GXPort>();
                 UsbManager manager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
                 Map<String, UsbDevice> devices = manager.getDeviceList();
                 for (Map.Entry<String, UsbDevice> it : devices.entrySet()) {
                     addPort(manager, it.getValue(), false);
+                }
+                if (mPorts.isEmpty())
+                {
+                    mPorts = null;
+                    return new GXPort[0];
                 }
             }
         }

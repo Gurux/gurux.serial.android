@@ -64,8 +64,9 @@ import gurux.io.Parity;
 import gurux.io.StopBits;
 import gurux.serial.GXPort;
 import gurux.serial.GXSerial;
+import gurux.serial.IGXSerialListener;
 
-public class MainActivity extends AppCompatActivity implements IGXMediaListener {
+public class MainActivity extends AppCompatActivity implements IGXMediaListener, IGXSerialListener {
     /**
      * List of available serial ports.
      */
@@ -418,5 +419,15 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener 
             serial = null;
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onPortAdded(GXPort port) {
+        findPorts(null);
+    }
+
+    @Override
+    public void onPortRemoved(GXPort port, int index) {
+        findPorts(null);
     }
 }
