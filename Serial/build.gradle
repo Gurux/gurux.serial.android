@@ -80,13 +80,16 @@ afterEvaluate {
                         url = 'https://github.com/gurux/gurux.serial.android'
                     }
                 }
+                boolean isEnabled = project.hasProperty('sonatypeUsername') && project.hasProperty('sonatypePassword')
                 repositories {
                     maven {
                         name = "Maven central"
                         url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-                        credentials{
-                            username = sonatypeUsername
-                            password = sonatypePassword
+                        if (isEnabled){
+                            credentials{
+                                username = sonatypeUsername
+                                password = sonatypePassword
+                            }
                         }
                     }
                 }

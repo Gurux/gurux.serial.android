@@ -95,16 +95,19 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener,
     private EditText sendData;
     private CheckBox hex;
 
+    ArrayAdapter<Integer> ratesAdapter;
+    ArrayAdapter<Integer> dataBitsAdapter;
+
     /**
      * Read last used settings.
      */
     private void readSettings() {
         SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
         int br = sharedPref.getInt(getString(R.string.baudrate), 9600);
-        int pos = ((ArrayAdapter) baudRate.getAdapter()).getPosition(br);
+        int pos = ratesAdapter.getPosition(br);
         baudRate.setSelection(pos);
         int db = sharedPref.getInt(getString(R.string.dataBits), 8);
-        pos = ((ArrayAdapter) dataBits.getAdapter()).getPosition(db);
+        pos = dataBitsAdapter.getPosition(db);
         dataBits.setSelection(pos);
 
         pos = sharedPref.getInt(getString(R.string.parity), 0);
@@ -151,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener,
             for (int it : GXSerial.getAvailableBaudRates(null)) {
                 rates.add(it);
             }
-            ArrayAdapter<Integer> ratesAdapter = new ArrayAdapter<Integer>(this,
+            ratesAdapter = new ArrayAdapter<Integer>(this,
                     android.R.layout.simple_spinner_item, rates);
             ratesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             baudRate.setAdapter(ratesAdapter);
@@ -160,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener,
             List<Integer> dataBitsList = new ArrayList<Integer>();
             dataBitsList.add(7);
             dataBitsList.add(8);
-            ArrayAdapter<Integer> dataBitsAdapter = new ArrayAdapter<Integer>(this,
+            dataBitsAdapter = new ArrayAdapter<Integer>(this,
                     android.R.layout.simple_spinner_item, dataBitsList);
             dataBitsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             dataBits.setAdapter(dataBitsAdapter);
@@ -227,7 +230,7 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener,
         new AlertDialog.Builder(this)
                 .setTitle("Error")
                 .setMessage(ex.getMessage())
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         // continue with delete
                     }
