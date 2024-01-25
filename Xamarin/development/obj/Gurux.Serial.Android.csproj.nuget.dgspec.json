@@ -1,0 +1,58 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Projects\\Android\\Gurux.Serial.Android\\Xamarin\\development\\Gurux.Serial.Android.csproj": {}
+  },
+  "projects": {
+    "C:\\Projects\\Android\\Gurux.Serial.Android\\Xamarin\\development\\Gurux.Serial.Android.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Projects\\Android\\Gurux.Serial.Android\\Xamarin\\development\\Gurux.Serial.Android.csproj",
+        "projectName": "Gurux.Serial.Android",
+        "projectPath": "C:\\Projects\\Android\\Gurux.Serial.Android\\Xamarin\\development\\Gurux.Serial.Android.csproj",
+        "packagesPath": "C:\\Users\\Mikko\\.nuget\\packages\\",
+        "outputPath": "C:\\Projects\\Android\\Gurux.Serial.Android\\Xamarin\\development\\obj\\",
+        "projectStyle": "PackageReference",
+        "skipContentFileWrite": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\Mikko\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "monoandroid13.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "monoandroid13.0": {
+            "projectReferences": {}
+          }
+        }
+      },
+      "frameworks": {
+        "monoandroid13.0": {
+          "dependencies": {
+            "Gurux.Common.Android": {
+              "target": "Package",
+              "version": "[8.4.2401.2408, )"
+            },
+            "System.IO.Ports": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Xamarin.AndroidX.AppCompat": {
+              "target": "Package",
+              "version": "[1.6.1.6, )"
+            }
+          }
+        }
+      }
+    }
+  }
+}
