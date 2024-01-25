@@ -13,3 +13,8 @@ DS_Store
 .externalNativeBuild
 .cxx
 local.properties
+Xamarin/development/.vs/
+Xamarin/development/bin/
+Xamarin/development/obj/
+Xamarin/Gurux.Serial.Example/Gurux.Serial.Example/bin/
+Xamarin/Gurux.Serial.Example/Gurux.Serial.Example/obj/
