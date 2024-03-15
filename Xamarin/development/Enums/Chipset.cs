@@ -50,10 +50,6 @@ namespace Gurux.Serial.Enums
         /// </summary>
         Cp21xx,
         /// <summary>
-        /// CDC ACM chipset.
-        /// </summary>
-        //CdcAcm,
-        /// <summary>
         /// FTDI chipset.
         /// </summary>
         Ftdi,

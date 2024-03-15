@@ -30,6 +30,7 @@
 // Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
 //---------------------------------------------------------------------------
 
+using Android.Bluetooth;
 using Android.Content;
 using Android.Hardware.Usb;
 
@@ -53,25 +54,12 @@ namespace Gurux.Serial
 
         public override void OnReceive(Context context, Intent intent)
         {
-            /*
-            if ("Gurux.Serial" == intent.Action)
-            {
-                lock (this)
-                {
-                    bool ret = intent.GetBooleanExtra(UsbManager.ExtraPermissionGranted, false);
-                    if (ret)
-                    {
-                        UsbDevice device = (UsbDevice)intent.GetParcelableExtra(UsbManager.ExtraDevice);
-                        _serial.AddPort(null, device, true);
-                    }
-                }
-            }
-            else */
             if (UsbManager.ActionUsbDeviceDetached == intent.Action)
             {
                 lock (this)
                 {
-                    UsbDevice device = (UsbDevice)intent.GetParcelableExtra(UsbManager.ExtraDevice);
+                    UsbDevice device = (UsbDevice)intent.GetParcelableExtra(UsbManager.ExtraDevice,
+                        Java.Lang.Class.FromType(typeof(UsbDevice)));
                     _serial.RemovePort(device);
                 }
             }
@@ -79,7 +67,8 @@ namespace Gurux.Serial
             {
                 lock (this)
                 {
-                    UsbDevice device = (UsbDevice)intent.GetParcelableExtra(UsbManager.ExtraDevice);
+                    UsbDevice device = (UsbDevice)intent.GetParcelableExtra(UsbManager.ExtraDevice,
+                        Java.Lang.Class.FromType(typeof(UsbDevice)));
                     _serial.AddPort(null, device, true);
                 }
             }

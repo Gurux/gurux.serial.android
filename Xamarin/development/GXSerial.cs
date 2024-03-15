@@ -494,6 +494,10 @@ namespace Gurux.Serial
             byte[] rawDescriptors,
             byte[] buff)
         {
+            if (rawDescriptors == null || rawDescriptors.Length < MANUFACTURER_INDEX)
+            {
+                return null;
+            }
             int lengthManufacturer = connection.ControlTransfer(
                 UsbAddressing.In,
                     STD_USB_REQUEST_GET_DESCRIPTOR,
@@ -502,7 +506,7 @@ namespace Gurux.Serial
                     buff,
                     0xFF,
                     0);
-            if (lengthManufacturer > 0)
+            if (lengthManufacturer > 2)
             {
                 return Encoding.Unicode.GetString(buff, 2, lengthManufacturer - 2);
             }
@@ -514,6 +518,10 @@ namespace Gurux.Serial
             byte[] rawDescriptors,
             byte[] buff)
         {
+            if (rawDescriptors == null || rawDescriptors.Length < PRODUCT_INDEX)
+            {
+                return null;
+            }
             int lengthProduct = connection.ControlTransfer(
                     UsbAddressing.In,
                     STD_USB_REQUEST_GET_DESCRIPTOR,
@@ -522,7 +530,7 @@ namespace Gurux.Serial
                     buff,
                     0xFF,
                     0);
-            if (lengthProduct > 0)
+            if (lengthProduct > 2)
             {
                 return Encoding.Unicode.GetString(buff, 2, lengthProduct - 2);
             }
