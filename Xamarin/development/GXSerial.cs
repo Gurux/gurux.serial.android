@@ -494,7 +494,7 @@ namespace Gurux.Serial
             byte[] rawDescriptors,
             byte[] buff)
         {
-            if (rawDescriptors == null || rawDescriptors.Length < MANUFACTURER_INDEX)
+            if (rawDescriptors == null || rawDescriptors.Length <= MANUFACTURER_INDEX)
             {
                 return null;
             }
@@ -518,7 +518,7 @@ namespace Gurux.Serial
             byte[] rawDescriptors,
             byte[] buff)
         {
-            if (rawDescriptors == null || rawDescriptors.Length < PRODUCT_INDEX)
+            if (rawDescriptors == null || rawDescriptors.Length <= PRODUCT_INDEX)
             {
                 return null;
             }
