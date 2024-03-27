@@ -1034,7 +1034,7 @@ namespace Gurux.Serial
                     throw new System.Exception("Usb feature is not supported.");
                 }
                 NotifyMediaStateChange(MediaState.Opening);
-                if (Trace >= TraceLevel.Info)
+                if (Trace >= TraceLevel.Info && m_OnTrace != null)
                 {
                     string eopString = "None";
                     if (m_Eop is byte[] b)
@@ -1294,7 +1294,7 @@ namespace Gurux.Serial
         {
             get;
             set;
-        }      
+        }
 
         /// <inheritdoc cref="IGXMedia.SyncRoot"/>
         [Browsable(false), ReadOnly(true)]
@@ -1629,7 +1629,7 @@ namespace Gurux.Serial
             {
                 throw new System.Exception("Serial port is not open.");
             }
-            if (Trace == TraceLevel.Verbose)
+            if (Trace == TraceLevel.Verbose && m_OnTrace != null)
             {
                 m_OnTrace(this, new TraceEventArgs(TraceTypes.Sent, data, null));
             }
