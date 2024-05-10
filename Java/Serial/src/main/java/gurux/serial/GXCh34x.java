@@ -55,11 +55,8 @@ class GXCh34x extends GXChipset {
     final static int IN_REQTYPE = UsbConstants.USB_TYPE_VENDOR | UsbConstants.USB_DIR_IN;
 
     public static boolean isUsing(final String stringManufacturer, final int vendor, final int product) {
-        /**QinHeng Electronics*/
-        if ((vendor == 0x1a86)) {
-            return true;
-        }
-        return false;
+        /*QinHeng Electronics and QinHeng Electronics*/
+        return vendor == 0x1a86;
     }
 
     private void setBaudRate(UsbDeviceConnection connection, int baudRate) throws IOException {

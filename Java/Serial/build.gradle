@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace 'gurux.serial'
-    compileSdk 32
+    compileSdk 34
 
     defaultConfig {
         minSdk 28
-        targetSdk 32
+        targetSdk 34
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -36,12 +36,12 @@ android {
 }
 
 dependencies {
-    implementation 'org.gurux:Gurux.Common.Android:2.0.1'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'org.gurux:Gurux.Common.Android:2.0.2'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.12.0'
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.4'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
 
 afterEvaluate {
@@ -51,7 +51,7 @@ afterEvaluate {
                 from components.release
                 groupId = "org.gurux"
                 artifactId = "gurux.serial.android"
-                version = "2.0.3"
+                version = "2.0.4"
 
                 signing {
                     sign publishing.publications.release

@@ -77,15 +77,13 @@ namespace Gurux.Serial.Chipsets
 
         public new static bool IsUsing(string manufacturer, int vendor, int product)
         {
-            if ((vendor == 1027 && product == 24557) ||
-                (vendor == 1027 && product == 24577) ||
+            return (vendor == 1027 &&
+                (product == 24557 ||
+                product == 24577 ||
+                product == 24597) ||
                 //Tespro
-                (vendor == 0403 && product == 6001) ||
-                    "FTDI" == manufacturer)
-            {
-                return true;
-            }
-            return false;
+                (vendor == 403 && product == 6001) ||
+                    "FTDI" == manufacturer);
         }
 
         private static int GetBaudRateValue(int baudRate)
