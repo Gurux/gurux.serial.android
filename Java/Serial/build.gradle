@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace 'gurux.serial'
-    compileSdk 34
+    compileSdk 33
 
     defaultConfig {
         minSdk 28
-        targetSdk 34
+        targetSdk 33
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -51,7 +51,7 @@ afterEvaluate {
                 from components.release
                 groupId = "org.gurux"
                 artifactId = "gurux.serial.android"
-                version = "2.0.4"
+                version = "2.0.5"
 
                 signing {
                     sign publishing.publications.release

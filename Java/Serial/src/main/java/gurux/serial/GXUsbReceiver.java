@@ -44,7 +44,7 @@ import android.util.Log;
 /**
  * Handle USB register events.
  */
-final class GXUsbReciever extends BroadcastReceiver {
+final class GXUsbReceiver extends BroadcastReceiver {
     GXSerial mSerial;
 
     /**
@@ -52,7 +52,7 @@ final class GXUsbReciever extends BroadcastReceiver {
      *
      * @param serial owner.
      */
-    public GXUsbReciever(final GXSerial serial) {
+    public GXUsbReceiver(final GXSerial serial) {
         mSerial = serial;
     }
 

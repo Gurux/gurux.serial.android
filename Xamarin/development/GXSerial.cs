@@ -283,10 +283,6 @@ namespace Gurux.Serial
             {
                 return new GXFtdi();
             }
-            else if (GXFtdi.IsUsing(manufacturer, vendor, productId))
-            {
-                return new GXFtdi();
-            }
             else if (GXCh34x.IsUsing(manufacturer, vendor, productId))
             {
                 return new GXCh34x();
@@ -1118,7 +1114,6 @@ namespace Gurux.Serial
                             {
                                 break;
                             }
-                            Log.Error("Mikko", "Mikko");
                             if (len > 0 && _Chipset != null)
                             {
                                 len = _Chipset.RemoveStatus(buff, len, buff.Length);

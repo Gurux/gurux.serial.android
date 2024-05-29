@@ -40,10 +40,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -83,7 +85,6 @@ import gurux.common.enums.TraceTypes;
 import gurux.io.BaudRate;
 import gurux.io.Parity;
 import gurux.io.StopBits;
-import gurux.serial.R;
 import gurux.serial.enums.AvailableMediaSettings;
 import gurux.serial.enums.Chipset;
 
@@ -161,7 +162,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     /*
      * Synchronously class.
      */
-    private GXSynchronousMediaBase mSyncBase;
+    private final  GXSynchronousMediaBase mSyncBase;
     /*
      * Amount of bytes sent.
      */
@@ -183,24 +184,24 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      */
     private int mConfigurableSettings;
 
-    private Context mContext;
+    private final Context mContext;
 
     private Activity mActivity;
 
     /*
      * Receive notifications if serial port is removed or added.
      */
-    private GXUsbReciever mUsbReciever;
+    private final GXUsbReceiver mUsbReceiver;
 
     /**
      * Media listeners.
      */
-    private final List<IGXMediaListener> mMediaListeners = new ArrayList<IGXMediaListener>();
+    private final List<IGXMediaListener> mMediaListeners = new ArrayList<>();
 
     /**
      * Serial port listeners.
      */
-    private final List<IGXSerialListener> mPortListeners = new ArrayList<IGXSerialListener>();
+    private final List<IGXSerialListener> mPortListeners = new ArrayList<>();
 
     /**
      * Constructor.
@@ -212,12 +213,12 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
             throw new IllegalArgumentException("context");
         }
         mContext = context;
-        mUsbReciever = new GXUsbReciever(this);
+        mUsbReceiver = new GXUsbReceiver(this);
         String name = "gurux.serial";
         IntentFilter filter2 = new IntentFilter(name);
         filter2.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter2.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        mContext.registerReceiver(mUsbReciever, filter2);
+        mContext.registerReceiver(mUsbReceiver, filter2);
         mSyncBase = new GXSynchronousMediaBase(200);
         setConfigurableSettings(AvailableMediaSettings.ALL.getValue());
     }
@@ -298,8 +299,6 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
             return new GXCP21xx();
         } else if (GXProfilic.isUsing(stringManufacturer, vendor, productId)) {
             return new GXProfilic();
-        } else if (GXFtdi.isUsing(stringManufacturer, vendor, productId)) {
-            return new GXFtdi();
         } else if (GXFtdi.isUsing(stringManufacturer, vendor, productId)) {
             return new GXFtdi();
         } else if (GXCh34x.isUsing(stringManufacturer, vendor, productId)) {
@@ -425,7 +424,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
                         }
                     }
                 } catch (IOException e) {
-                    Log.i("gurux.serial", e.getMessage());
+                    Log.i("gurux.serial", Objects.requireNonNull(e.getMessage()));
                 }
             }
         }
@@ -440,7 +439,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
         synchronized (GXPort.class) {
            if (mPorts == null)
            {
-                mPorts = new ArrayList<GXPort>();
+                mPorts = new ArrayList<>();
                 UsbManager manager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
                 Map<String, UsbDevice> devices = manager.getDeviceList();
                 for (Map.Entry<String, UsbDevice> it : devices.entrySet()) {
@@ -462,7 +461,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      * @param port Selected serial port.
      * @return Collection of available baud rates.
      */
-    public static final int[] getAvailableBaudRates(final GXPort port) {
+    public static int[] getAvailableBaudRates(final GXPort port) {
         return new int[]{BaudRate.BAUD_RATE_300.getValue(), BaudRate.BAUD_RATE_600.getValue(),
                 BaudRate.BAUD_RATE_1200.getValue(), BaudRate.BAUD_RATE_2400.getValue(),
                 BaudRate.BAUD_RATE_4800.getValue(), BaudRate.BAUD_RATE_9600.getValue(),
@@ -658,7 +657,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
                 0xFF,
                 0);
         if (lengthManufacturer > 0) {
-            return new String(buff, 2, lengthManufacturer - 2, "UTF-16LE");
+            return new String(buff, 2, lengthManufacturer - 2, StandardCharsets.UTF_16LE);
         }
         return null;
     }
@@ -674,7 +673,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
                 0xFF,
                 0);
         if (lengthProduct > 0) {
-            return new String(buff, 2, lengthProduct - 2, "UTF-16LE");
+            return new String(buff, 2, lengthProduct - 2, StandardCharsets.UTF_16LE);
         }
         return null;
     }
@@ -682,18 +681,15 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     /**
      * Find vendor and product name.
      *
-     * @param context
+     * @param context Context.
      * @param vendor  Vendor ID.
      * @param product Product ID.
      * @return Vendor and product entry or null.
-     * @throws IOException
+     * @throws IOException Usb ports resource is not found.
      */
     private static Map.Entry<String, String> find(Context context, int vendor,
                                                   int product) throws IOException {
         InputStream is = context.getResources().openRawResource(R.raw.usbs);
-        if (is == null) {
-            throw new IOException("Invalid USB list.");
-        }
         String vendorName = null, productName = null;
         BufferedReader r = new BufferedReader(new InputStreamReader(is));
         String line;
@@ -727,7 +723,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
         if (vendorName == null) {
             return null;
         }
-        return new AbstractMap.SimpleEntry<String, String>(vendorName, productName);
+        return new AbstractMap.SimpleEntry<>(vendorName, productName);
     }
 
     @Override
@@ -754,8 +750,8 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
                 }
                 notifyTrace(new TraceEventArgs(TraceTypes.INFO,
                         "Settings: Port: " + this.getPort() + " Baud Rate: " + getBaudRate()
-                                + " Data Bits: " + String.valueOf(getDataBits()) + " Parity: "
                                 + getParity().toString() + " Stop Bits: " + getStopBits().toString() + " Eop:"
+                                + " Data Bits: " + getDataBits() + " Parity: "
                                 + eopString));
             }
             UsbEndpoint in = null;
@@ -875,7 +871,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      * @param value
      *            Is DTR enabled.
      */
-    public final void setDtrEnable(final boolean value) throws IOException  {
+    public void setDtrEnable(final boolean value) throws IOException  {
         if (isOpen())
         {
             boolean change = getDtrEnable() != value;
@@ -892,7 +888,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      *
      * @return Is RTS enabled.
      */
-    public final boolean getRtsEnable() {
+    public boolean getRtsEnable() {
         if (isOpen()) {
             return mChipset.getRtsEnable(mConnection);
         }
@@ -1120,25 +1116,25 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
         }
         if (mBaudRate != BaudRate.BAUD_RATE_9600) {
             sb.append("<BaudRate>");
-            sb.append(String.valueOf(mBaudRate.getValue()));
+            sb.append(mBaudRate.getValue());
             sb.append("</BaudRate>");
             sb.append(nl);
         }
         if (mStopBits != StopBits.ONE) {
             sb.append("<StopBits>");
-            sb.append(String.valueOf(mStopBits.ordinal()));
+            sb.append(mStopBits.ordinal());
             sb.append("</StopBits>");
             sb.append(nl);
         }
         if (mParity != Parity.NONE) {
             sb.append("<Parity>");
-            sb.append(String.valueOf(mParity.ordinal()));
+            sb.append(mParity.ordinal());
             sb.append("</Parity>");
             sb.append(nl);
         }
         if (mDataBits != DEFAULT_DATA_BITS) {
             sb.append("<DataBits>");
-            sb.append(String.valueOf(mDataBits));
+            sb.append(mDataBits);
             sb.append("</DataBits>");
             sb.append(nl);
         }
@@ -1231,6 +1227,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
                         }
                     });
         } catch (Exception ex) {
+            Log.e("GXSerial", Objects.requireNonNull(ex.getMessage()));
         }
     }
 
