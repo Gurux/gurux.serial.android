@@ -49,7 +49,6 @@ using System.Text;
 using System.IO;
 using System.Threading.Tasks;
 using Gurux.Common.Enums;
-using Android.Util;
 using Gurux.Serial.Chipsets;
 
 [assembly: UsesFeature("android.hardware.usb.host")]

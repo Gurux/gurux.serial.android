@@ -100,7 +100,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     /**
      * List of available serial ports.
      */
-    private static List<GXPort> mPorts;
+    protected static List<GXPort> mPorts = new ArrayList<>();
     /**
      * Amount of default data bits.
      */
@@ -437,22 +437,16 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      */
     public GXPort[] getPorts() {
         synchronized (GXPort.class) {
-           if (mPorts == null)
+           if (mPorts.isEmpty())
            {
-                mPorts = new ArrayList<>();
                 UsbManager manager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
                 Map<String, UsbDevice> devices = manager.getDeviceList();
                 for (Map.Entry<String, UsbDevice> it : devices.entrySet()) {
                     addPort(manager, it.getValue(), false);
                 }
-                if (mPorts.isEmpty())
-                {
-                    mPorts = null;
-                    return new GXPort[0];
-                }
             }
         }
-        return mPorts.toArray(new GXPort[mPorts.size()]);
+        return mPorts.toArray(new GXPort[0]);
     }
 
     /**

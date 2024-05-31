@@ -41,6 +41,9 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Handle USB register events.
  */
@@ -60,29 +63,58 @@ final class GXUsbReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, final Intent intent) {
         String action = intent.getAction();
-        if ("gurux.serial".equals(action)) {
-            synchronized (this) {
-                UsbDevice device = (UsbDevice) intent
-                        .getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                if (intent.getBooleanExtra(
-                        UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+        try {
+            if ("gurux.serial".equals(action)) {
+                ArrayList<UsbDevice> newPorts = new ArrayList<>();
+                synchronized (this) {
+                    UsbDevice device = (UsbDevice) intent
+                            .getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                    if (device != null && intent.getBooleanExtra(
+                            UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+                        mSerial.addPort(null, device, true);
+                    } else {
+                        //Add new ports where user has added permissions.
+                        UsbManager manager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
+                        List<GXPort> ports = GXSerial.mPorts;
+                        if (ports == null) {
+                            GXSerial.mPorts = new ArrayList<>();
+                        }
+                            for (UsbDevice usbDevice : manager.getDeviceList().values()) {
+                            boolean found = false;
+                                for (GXPort port : ports) {
+                                    if (port.getPort().equals(usbDevice.getDeviceName())) {
+                                        found = true;
+                                        break;
+                                    }
+                            }
+                            if (!found) {
+                                newPorts.add(usbDevice);
+                            }
+                        }
+                    }
+                    for (UsbDevice it : newPorts) {
+                        mSerial.addPort(null, it, true);
+                    }
+                }
+            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                Log.i("gurux.serial", "USB removed.");
+                synchronized (this) {
+                    UsbDevice device = (UsbDevice) intent
+                            .getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                    mSerial.removePort(device);
+                }
+            } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+                Log.i("gurux.serial", "USB added.");
+                synchronized (this) {
+                    UsbDevice device = (UsbDevice) intent
+                            .getParcelableExtra(UsbManager.EXTRA_DEVICE);
                     mSerial.addPort(null, device, true);
                 }
             }
-        } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-            Log.i("gurux.serial", "USB removed.");
-            synchronized (this) {
-                UsbDevice device = (UsbDevice) intent
-                        .getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                mSerial.removePort(device);
-            }
-        } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-            Log.i("gurux.serial", "USB added.");
-            synchronized (this) {
-                UsbDevice device = (UsbDevice) intent
-                        .getParcelableExtra(UsbManager.EXTRA_DEVICE);
-                mSerial.addPort(null, device, true);
-            }
+        }
+        catch(Exception ex)
+        {
+            Log.e("gurux.serial", ex.getMessage());
         }
     }
 }
