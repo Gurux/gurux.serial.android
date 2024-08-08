@@ -188,11 +188,6 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
 
     private Activity mActivity;
 
-    /*
-     * Receive notifications if serial port is removed or added.
-     */
-    private final GXUsbReceiver mUsbReceiver;
-
     /**
      * Media listeners.
      */
@@ -213,12 +208,12 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
             throw new IllegalArgumentException("context");
         }
         mContext = context;
-        mUsbReceiver = new GXUsbReceiver(this);
+        GXUsbReceiver mUsbReceiver = new GXUsbReceiver(this);
         String name = "gurux.serial";
         IntentFilter filter2 = new IntentFilter(name);
         filter2.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter2.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        mContext.registerReceiver(mUsbReceiver, filter2);
+        mContext.registerReceiver(mUsbReceiver, filter2, Context.RECEIVER_NOT_EXPORTED);
         mSyncBase = new GXSynchronousMediaBase(200);
         setConfigurableSettings(AvailableMediaSettings.ALL.getValue());
     }

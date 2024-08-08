@@ -67,7 +67,9 @@ class GXProfilic extends GXChipset {
         /*Aten UC-232*/
         if ((vendor == 0x557 && product == 0x2008) ||
                 /*Prolific BF-810*/
-                (vendor == 1659 && product == 8963)) {
+                (vendor == 1659 && product == 8963) ||
+            /*CadyCE*/
+            (vendor == 1659 && product == 0x23A3)) {
             return true;
         }
         return false;

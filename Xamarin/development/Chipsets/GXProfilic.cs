@@ -66,7 +66,9 @@ namespace Gurux.Serial.Chipsets
             /*Aten UC-232*/
             if ((vendor == 0x557 && product == 0x2008) ||
                     /*Prolific BF-810*/
-                    (vendor == 1659 && product == 8963))
+                    (vendor == 1659 && product == 8963) ||
+                    /*Prolific*/
+                    (vendor == 1659 && product == 0x23A3))
             {
                 return true;
             }
