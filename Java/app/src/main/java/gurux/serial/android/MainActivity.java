@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements IGXMediaListener,
         editor.putInt(getString(R.string.stopBits), ((StopBits) stopBits.getSelectedItem()).ordinal());
         editor.putBoolean(getString(R.string.Hex), hex.isChecked());
         editor.putString(getString(R.string.sendData), sendData.getText().toString());
-        editor.commit();
+        editor.apply();
     }
 
     @Override
