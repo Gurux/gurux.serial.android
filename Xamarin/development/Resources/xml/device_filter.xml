@@ -24,4 +24,7 @@
     <usb-device vendor-id="1027" product-id="24557" class="255" subclass="0" protocol="0" />
     <usb-device vendor-id="1027" product-id="6001" class="255" subclass="255" protocol="255" />
     <usb-device vendor-id="403" product-id="6001" class="0" subclass="0" protocol="0" />
+    <usb-device vendor-id="403" product-id="6015" class="0" subclass="0" protocol="0" />
+    <!-- CP21xx -->
+    <usb-device vendor-id="4292" product-id="60000" class="0" subclass="0" protocol="0" />
 </resources>

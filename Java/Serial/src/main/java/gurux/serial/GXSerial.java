@@ -454,7 +454,10 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
         return new int[]{BaudRate.BAUD_RATE_300.getValue(), BaudRate.BAUD_RATE_600.getValue(),
                 BaudRate.BAUD_RATE_1200.getValue(), BaudRate.BAUD_RATE_2400.getValue(),
                 BaudRate.BAUD_RATE_4800.getValue(), BaudRate.BAUD_RATE_9600.getValue(),
-                BaudRate.BAUD_RATE_19200.getValue(), BaudRate.BAUD_RATE_38400.getValue()};
+                BaudRate.BAUD_RATE_19200.getValue(), BaudRate.BAUD_RATE_38400.getValue(),
+                BaudRate.BAUD_RATE_57600.getValue(),
+                BaudRate.BAUD_RATE_78600.getValue(),
+                BaudRate.BAUD_RATE_115200.getValue()};
     }
 
     @Override
