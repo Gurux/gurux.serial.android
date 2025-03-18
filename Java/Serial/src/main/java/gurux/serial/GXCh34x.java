@@ -217,7 +217,6 @@ class GXCh34x extends GXChipset {
                 value2 |= 100 << 8;
                 break;
             }
-            /*
             case BAUD_RATE_57600: {
                 value2 |= 3;
                 value2 |= 152 << 8;
@@ -228,6 +227,7 @@ class GXCh34x extends GXChipset {
                 value2 |= 204 << 8;
                 break;
             }
+            /*
             case BAUD_RATE_230400: {
                 value2 |= 3;
                 value2 |= 230 << 8;
