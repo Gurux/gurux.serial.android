@@ -1,436 +1,251 @@
-//
-// --------------------------------------------------------------------------
-//  Gurux Ltd
-//
-//
-//
-// Filename:        $HeadURL$
-//
-// Version:         $Revision$,
-//                  $Date$
-//                  $Author$
-//
-// Copyright (c) Gurux Ltd
-//
-//---------------------------------------------------------------------------
-//
-//  DESCRIPTION
-//
-// This file is a part of Gurux Device Framework.
-//
-// Gurux Device Framework is Open Source software; you can redistribute it
-// and/or modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; version 2 of the License.
-// Gurux Device Framework is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-// See the GNU General Public License for more details.
-//
-// More information of Gurux products: http://www.gurux.org
-//
-// This code is licensed under the GNU General Public License v2.
-// Full text may be retrieved at http://www.gnu.org/licenses/gpl-2.0.txt
-//---------------------------------------------------------------------------
-
 package gurux.serial.android;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
+import android.text.method.LinkMovementMethod;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.text.HtmlCompat;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+import androidx.preference.PreferenceManager;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.android.material.navigation.NavigationView;
 
-import gurux.common.GXCommon;
 import gurux.common.IGXMediaListener;
 import gurux.common.MediaStateEventArgs;
 import gurux.common.PropertyChangedEventArgs;
 import gurux.common.ReceiveEventArgs;
 import gurux.common.TraceEventArgs;
-import gurux.common.enums.MediaState;
-import gurux.io.BaudRate;
-import gurux.io.Parity;
-import gurux.io.StopBits;
-import gurux.serial.GXPort;
 import gurux.serial.GXSerial;
-import gurux.serial.IGXSerialListener;
+import gurux.serial.android.databinding.ActivityMainBinding;
+import gurux.serial.android.ui.home.HomeViewModel;
+import gurux.serial.android.ui.media.MediaViewModel;
 
-public class MainActivity extends AppCompatActivity implements IGXMediaListener, IGXSerialListener {
-    /**
-     * List of available serial ports.
-     */
-    private Spinner portList;
-    /**
-     * Used baud rate.
-     */
-    private Spinner baudRate;
-    /**
-     * Used data bits.
-     */
-    private Spinner dataBits;
-    /**
-     * Used parity.
-     */
-    private Spinner parity;
-    /**
-     * Used stop bits.
-     */
-    private Spinner stopBits;
 
-    private Button openBtn;
-    private Button sendBtn;
-    private GXSerial serial;
-    private TextView receivedData;
-    private EditText sendData;
-    private CheckBox hex;
+public class MainActivity extends AppCompatActivity implements IGXMediaListener {
 
-    ArrayAdapter<Integer> ratesAdapter;
-    ArrayAdapter<Integer> dataBitsAdapter;
-
-    /**
-     * Read last used settings.
-     */
-    private void readSettings() {
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        int br = sharedPref.getInt(getString(R.string.baudrate), 9600);
-        int pos = ratesAdapter.getPosition(br);
-        baudRate.setSelection(pos);
-        int db = sharedPref.getInt(getString(R.string.dataBits), 8);
-        pos = dataBitsAdapter.getPosition(db);
-        dataBits.setSelection(pos);
-
-        pos = sharedPref.getInt(getString(R.string.parity), 0);
-        parity.setSelection(pos);
-
-        pos = sharedPref.getInt(getString(R.string.stopBits), 0);
-        stopBits.setSelection(pos);
-        hex.setChecked(sharedPref.getBoolean(getString(R.string.Hex), true));
-        sendData.setText(sharedPref.getString(getString(R.string.sendData), ""));
-    }
-
-    /**
-     * Save last used settings.
-     */
-    private void saveSettings() {
-        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putInt(getString(R.string.baudrate), ((Integer) baudRate.getSelectedItem()));
-        editor.putInt(getString(R.string.dataBits), (Integer) dataBits.getSelectedItem());
-        editor.putInt(getString(R.string.parity), ((Parity) parity.getSelectedItem()).ordinal());
-        editor.putInt(getString(R.string.stopBits), ((StopBits) stopBits.getSelectedItem()).ordinal());
-        editor.putBoolean(getString(R.string.Hex), hex.isChecked());
-        editor.putString(getString(R.string.sendData), sendData.getText().toString());
-        editor.apply();
-    }
+    private AppBarConfiguration mAppBarConfiguration;
+    private GXSerial mSerial;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        portList = (Spinner) findViewById(R.id.portList);
-        baudRate = (Spinner) findViewById(R.id.baudRate);
-        dataBits = (Spinner) findViewById(R.id.dataBits);
-        parity = (Spinner) findViewById(R.id.parity);
-        stopBits = (Spinner) findViewById(R.id.stopBits);
-        openBtn = (Button) findViewById(R.id.openBtn);
-        sendBtn = (Button) findViewById(R.id.sendBtn);
-        receivedData = (TextView) findViewById(R.id.receivedData);
-        sendData = (EditText) findViewById(R.id.sendData);
-        hex = (CheckBox) findViewById(R.id.hex);
-        try {
-            //Add baud rates.
-            List<Integer> rates = new ArrayList<Integer>();
-            for (int it : GXSerial.getAvailableBaudRates(null)) {
-                rates.add(it);
-            }
-            ratesAdapter = new ArrayAdapter<Integer>(this,
-                    android.R.layout.simple_spinner_item, rates);
-            ratesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            baudRate.setAdapter(ratesAdapter);
+        final HomeViewModel mSerialViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+        final MediaViewModel mMediaViewModel = new ViewModelProvider(this).get(MediaViewModel.class);
 
-            //Add data bits.
-            List<Integer> dataBitsList = new ArrayList<Integer>();
-            dataBitsList.add(7);
-            dataBitsList.add(8);
-            dataBitsAdapter = new ArrayAdapter<Integer>(this,
-                    android.R.layout.simple_spinner_item, dataBitsList);
-            dataBitsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            dataBits.setAdapter(dataBitsAdapter);
-
-            //Add Parity.
-            List<Parity> parityList = new ArrayList<Parity>();
-            parityList.add(Parity.NONE);
-            parityList.add(Parity.ODD);
-            parityList.add(Parity.EVEN);
-            parityList.add(Parity.MARK);
-            parityList.add(Parity.SPACE);
-            ArrayAdapter<Parity> parityAdapter = new ArrayAdapter<Parity>(this,
-                    android.R.layout.simple_spinner_item, parityList);
-            parityAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            parity.setAdapter(parityAdapter);
-
-
-            //Add stop bits.
-            List<StopBits> stopBitsList = new ArrayList<StopBits>();
-            stopBitsList.add(StopBits.ONE);
-            stopBitsList.add(StopBits.ONE_POINT_FIVE);
-            stopBitsList.add(StopBits.TWO);
-            ArrayAdapter<StopBits> stopBitsAdapter = new ArrayAdapter<StopBits>(this,
-                    android.R.layout.simple_spinner_item, stopBitsList);
-            stopBitsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            stopBits.setAdapter(stopBitsAdapter);
-
-
-            //Add serial ports.
-            List<GXPort> ports = new ArrayList<GXPort>();
-            serial = new GXSerial(this);
-            serial.addListener(this);
-            for (GXPort it : serial.getPorts()) {
-                ports.add(it);
-            }
-            if (ports.size() == 0) {
-                throw new Exception("No serial ports available.");
-            }
-            ArrayAdapter<GXPort> portsAdapter = new ArrayAdapter<GXPort>(this,
-                    android.R.layout.simple_spinner_item, ports);
-            portsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            portList.setAdapter(portsAdapter);
-            try {
-                readSettings();
-            } catch (Exception ex) {
-                //Select 9600 as default baud rate value.
-                baudRate.setSelection(5);
-                //Select 8 as default data bit value.
-                dataBits.setSelection(1);
-                //Select NONE as default parity value.
-                parity.setSelection(0);
-                //Select ONE as default value.
-                stopBits.setSelection(0);
-                hex.setChecked(true);
-            }
-
-        } catch (Exception ex) {
-            openBtn.setEnabled(false);
-            showError(ex);
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
+        mSerial = new GXSerial(this);
+        mMediaViewModel.setMedia(mSerial);
+        readSettings(mSerial);
+        if (mSerial.getPort() == null && mSerial.getPorts().length != 0) {
+            //Select first port.
+            mSerial.setPort(mSerial.getPorts()[0]);
         }
-    }
+        //Properties are saved after change.
+        mSerial.addListener(this);
+        mSerialViewModel.setSerial(mSerial);
+        setContentView(binding.getRoot());
 
-    private void showError(Exception ex) {
-        new AlertDialog.Builder(this)
-                .setTitle("Error")
-                .setMessage(ex.getMessage())
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // continue with delete
-                    }
-                })
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .show();
+        //PreferenceManager is used to share data between the properties activity and main activity.
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener((sharedPreferences, key) -> {
+            if ("mediaSettings".equals(key)) {
+                String settings = sharedPreferences.getString("mediaSettings", null);
+                if (settings != null) {
+                    mSerial.removeListener(this);
+                    mSerial.setSettings(settings);
+                    mSerial.addListener(this);
+                    saveSettings(mSerial);
+                    //Update UI.
+                    mSerialViewModel.setSerial(mSerial);
+                }
+            }
+        });
+
+        setSupportActionBar(binding.appBarMain.toolbar);
+        DrawerLayout drawer = binding.drawerLayout;
+        NavigationView navigationView = binding.navView;
+
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_home,
+                //Add properties fragment.
+                R.id.nav_properties)
+                .setOpenableLayout(drawer)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_info) {
+                try {
+                    PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                    LinearLayout layout = new LinearLayout(this);
+                    layout.setOrientation(LinearLayout.VERTICAL);
+                    layout.setPadding(50, 40, 50, 10);
+
+                    final TextView copyright = new EditText(this);
+                    copyright.setMovementMethod(LinkMovementMethod.getInstance());
+                    copyright.setText(R.string.copyright);
+                    copyright.setTextIsSelectable(false);
+                    copyright.setFocusable(false);
+                    copyright.setClickable(false);
+                    layout.addView(copyright);
+
+                    final TextView version = new EditText(this);
+                    version.setMovementMethod(LinkMovementMethod.getInstance());
+                    version.setText(String.format("Version: %s", packageInfo.versionName));
+                    version.setTextIsSelectable(false);
+                    version.setFocusable(false);
+                    version.setClickable(false);
+                    layout.addView(version);
+
+                    final TextView url = new EditText(this);
+                    url.setMovementMethod(LinkMovementMethod.getInstance());
+                    url.setText(HtmlCompat.fromHtml("<a href='https://www.gurux.fi'>More info</a>", HtmlCompat.FROM_HTML_MODE_LEGACY));
+                    url.setLinksClickable(true);
+                    url.setFocusable(false);
+                    url.setTextIsSelectable(false);
+                    layout.addView(url);
+                    new AlertDialog.Builder(this)
+                            .setTitle("About Gurux network media")
+                            .setView(layout)
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss())
+                            .show();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                drawer.closeDrawer(GravityCompat.START);
+                return true;
+            }
+            boolean handled = NavigationUI.onNavDestinationSelected(item, navController);
+            if (handled) {
+                drawer.closeDrawer(GravityCompat.START);
+            }
+            return handled;
+        });
     }
 
     /**
-     * Open selected serial port.
+     * Read settings.
      */
-    public void openSerialPort(View view) {
-        try {
-            String open = getResources().getString(R.string.open);
-            String close = getResources().getString(R.string.close);
-            if (openBtn.getText() == open) {
-                serial.setPort(((GXPort) portList.getSelectedItem()));
-                serial.setBaudRate(BaudRate.forValue((Integer) baudRate.getSelectedItem()));
-                serial.setDataBits(Integer.parseInt(dataBits.getSelectedItem().toString()));
-                serial.setParity((Parity) parity.getSelectedItem());
-                serial.setStopBits((StopBits) stopBits.getSelectedItem());
-                serial.open();
-            } else {
-                serial.close();
-            }
-        } catch (Exception ex) {
-            serial.close();
-            showError(ex);
-        }
+    private void readSettings(GXSerial media) {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        media.setSettings(sharedPref.getString("settings", null));
     }
 
     /**
-     * Send data to the serial port.
+     * Save settings.
      */
-    public void sendData(View view) {
-        try {
-            String str = sendData.getText().toString();
-            if (hex.isChecked()) {
-                serial.send(GXCommon.hexToBytes(str));
-            } else {
-                serial.send(str);
-            }
-        } catch (Exception ex) {
-            showError(ex);
-        }
+    private void saveSettings(GXSerial media) {
+        SharedPreferences sharedPref = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("settings", media.getSettings());
+        editor.apply();
     }
 
-    /**
-     * Send data to the serial port.
-     */
-    public void findPorts(View view) {
-        try {
-            List<GXPort> list = new ArrayList<GXPort>();
-            for (GXPort it : serial.getPorts()) {
-                list.add(it);
-            }
-            ArrayAdapter<GXPort> dataAdapter = new ArrayAdapter<GXPort>(this,
-                    android.R.layout.simple_spinner_item, list);
-            dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            portList.setAdapter(dataAdapter);
-            if (list.size() == 0) {
-                throw new Exception("No serial ports available.");
-            }
-            openBtn.setEnabled(true);
-        } catch (Exception ex) {
-            openBtn.setEnabled(false);
-            showError(ex);
-        }
-    }
 
-    /*
-     * Show serial port info.
-     */
-    public void showInfo(View view) {
-        try {
-            GXPort port = (GXPort) portList.getSelectedItem();
-            String info = "";
-            if (port != null) {
-                info = port.getInfo();
-            }
-            new AlertDialog.Builder(this)
-                    .setTitle("Info")
-                    .setMessage(info)
-                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            //Do nothing.
-                        }
-                    })
-                    .setIcon(android.R.drawable.ic_dialog_info)
-                    .show();
-        } catch (Exception ex) {
-            openBtn.setEnabled(false);
-            showError(ex);
-        }
-    }
-
-    /**
-     * Clear received data.
-     */
-    public void clearData(View view) {
-        try {
-            receivedData.setText("");
-        } catch (Exception ex) {
-            openBtn.setEnabled(false);
-            showError(ex);
-        }
-    }
-
-    /**
-     * Show occurred exception.
-     *
-     * @param sender The source of the event.
-     * @param ex     Occurred exception.
-     */
     @Override
-    public void onError(final Object sender, final RuntimeException ex) {
-        showError(ex);
-    }
-
-    /**
-     * Show received data.
-     *
-     * @param sender The source of the event.
-     * @param e      Received data.
-     */
-    @Override
-    public void onReceived(final Object sender, final ReceiveEventArgs e) {
-        if (hex.isChecked()) {
-            receivedData.setText(receivedData.getText() + GXCommon.bytesToHex((byte[]) e.getData()));
-        } else {
-            receivedData.setText(receivedData.getText() + new String((byte[]) e.getData()));
-        }
-    }
-
-    private void enableUI(boolean open) {
-        sendBtn.setEnabled(open);
-        portList.setEnabled(!open);
-        baudRate.setEnabled(!open);
-        dataBits.setEnabled(!open);
-        parity.setEnabled(!open);
-        stopBits.setEnabled(!open);
-    }
-
-    /**
-     * Update UI when media state changes.
-     *
-     * @param sender The source of the event.
-     * @param e      Media state event arguments.
-     */
-    @Override
-    public void onMediaStateChange(final Object sender, final MediaStateEventArgs e) {
-        if (e.getState() == MediaState.OPEN) {
-            enableUI(true);
-            openBtn.setText(R.string.close);
-        } else if (e.getState() == MediaState.CLOSED) {
-            enableUI(false);
-            openBtn.setText(R.string.open);
-        }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
     }
 
     @Override
-    public void onTrace(final Object sender, final TraceEventArgs e) {
-
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.nav_home) {
+            finish();
+            return true;
+        }
+        //Show properties activity.
+        if (id == R.id.action_settings) {
+            return mSerial.properties(this);
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onPropertyChanged(Object sender, PropertyChangedEventArgs e) {
-
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
+    public boolean onSupportNavigateUp() {
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
+                || super.onSupportNavigateUp();
     }
 
     @Override
     public void onStop() {
-        saveSettings();
-        if (serial != null) {
-            serial.close();
+        if (mSerial != null) {
+            mSerial.close();
         }
         super.onStop();
     }
 
+    /*
+     * Settings activity is disabled when the connection is open.
+     */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem settingsItem = menu.findItem(R.id.action_settings);
+        if (settingsItem != null) {
+            settingsItem.setEnabled(!mSerial.isOpen());
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
     @Override
     public void onDestroy() {
-        if (serial != null) {
-            serial.close();
-            serial = null;
+        if (mSerial != null) {
+            mSerial.close();
         }
         super.onDestroy();
     }
 
     @Override
-    public void onPortAdded(GXPort port) {
-        findPorts(null);
+    public void onError(Object sender, RuntimeException ex) {
+
     }
 
     @Override
-    public void onPortRemoved(GXPort port, int index) {
-        findPorts(null);
+    public void onReceived(Object sender, ReceiveEventArgs e) {
+
+    }
+
+    @Override
+    public void onMediaStateChange(Object sender, MediaStateEventArgs e) {
+    }
+
+    @Override
+    public void onTrace(Object sender, TraceEventArgs e) {
+
+    }
+
+    /*
+    onPropertyChanged is called when user change settings from the fragment.
+     */
+    @Override
+    public void onPropertyChanged(Object sender, PropertyChangedEventArgs e) {
+        if (mSerial != null) {
+            saveSettings(mSerial);
+            Toast.makeText(this, R.string.saved, Toast.LENGTH_SHORT).show();
+        }
     }
 }

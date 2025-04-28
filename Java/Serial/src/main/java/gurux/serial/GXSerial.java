@@ -34,6 +34,28 @@
 
 package gurux.serial;
 
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.hardware.usb.UsbConstants;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbDeviceConnection;
+import android.hardware.usb.UsbEndpoint;
+import android.hardware.usb.UsbInterface;
+import android.hardware.usb.UsbManager;
+import android.os.Build;
+import android.util.Log;
+import android.util.Xml;
+
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,28 +68,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.hardware.usb.UsbConstants;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbEndpoint;
-import android.hardware.usb.UsbInterface;
-import android.hardware.usb.UsbManager;
-import android.util.Log;
-import android.util.Xml;
-import android.view.View;
-
-import androidx.fragment.app.Fragment;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import gurux.common.GXCommon;
 import gurux.common.GXSync;
@@ -87,13 +87,14 @@ import gurux.io.Parity;
 import gurux.io.StopBits;
 import gurux.serial.enums.AvailableMediaSettings;
 import gurux.serial.enums.Chipset;
+import gurux.serial.properties.PropertiesFragment;
+import gurux.serial.properties.PropertiesViewModel;
 
 /**
  * The GXSerial component determines methods that make the communication possible using serial port
  * connection.
  */
 public class GXSerial implements IGXMedia2, AutoCloseable {
-
     private int receiveDelay;
 
     private int asyncWaitTime;
@@ -162,7 +163,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     /*
      * Synchronously class.
      */
-    private final  GXSynchronousMediaBase mSyncBase;
+    private final GXSynchronousMediaBase mSyncBase;
     /*
      * Amount of bytes sent.
      */
@@ -198,6 +199,10 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      */
     private final List<IGXSerialListener> mPortListeners = new ArrayList<>();
 
+    private GXUsbReceiver mUsbReceiver;
+
+    private final UsbManager mUsbManager;
+
     /**
      * Constructor.
      *
@@ -208,12 +213,16 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
             throw new IllegalArgumentException("context");
         }
         mContext = context;
-        GXUsbReceiver mUsbReceiver = new GXUsbReceiver(this);
-        String name = "gurux.serial";
-        IntentFilter filter2 = new IntentFilter(name);
-        filter2.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-        filter2.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        mContext.registerReceiver(mUsbReceiver, filter2, Context.RECEIVER_NOT_EXPORTED);
+        mUsbReceiver = new GXUsbReceiver(this);
+        IntentFilter filter = new IntentFilter(GXUsbReceiver.ACTION_USB_PERMISSION);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        mUsbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mContext.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_EXPORTED);
+        } else {
+            mContext.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_EXPORTED);
+        }
         mSyncBase = new GXSynchronousMediaBase(200);
         setConfigurableSettings(AvailableMediaSettings.ALL.getValue());
     }
@@ -353,21 +362,15 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
         }
     }
 
-    void addPort(final UsbManager m, final UsbDevice device, final boolean notify) {
-        UsbManager manager = m;
-        if (manager == null) {
-            manager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
-        }
+    void addPort(final UsbDevice device, final boolean notify) {
         byte[] buffer = new byte[255];
-        String name = "gurux.serial";
-        PendingIntent permissionIntent = PendingIntent.getBroadcast(mContext, 0,
-                new Intent(name),  PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent permissionIntent = PendingIntent.getBroadcast(mActivity, 0,
+                new Intent(GXUsbReceiver.ACTION_USB_PERMISSION),
+                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         UsbEndpoint in = null, out = null;
-        if (!manager.hasPermission(device)) {
-            manager.requestPermission(device, permissionIntent);
-            if (!manager.hasPermission(device)) {
-                return;
-            }
+        if (!mUsbManager.hasPermission(device)) {
+            mUsbManager.requestPermission(device, permissionIntent);
+            return;
         }
         for (int i = 0; i != device.getInterfaceCount(); ++i) {
             UsbInterface usbIf = device.getInterface(i);
@@ -395,13 +398,13 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
                         port.setVendor(info.getKey());
                         port.setProduct(info.getValue());
                     }
-                    UsbDeviceConnection connection = manager.openDevice(device);
+                    UsbDeviceConnection connection = mUsbManager.openDevice(device);
                     try {
                         port.setSerial(connection.getSerial());
                         byte[] rawDescriptors = connection.getRawDescriptors();
                         port.setRawDescriptors(rawDescriptors);
                         String man = getManufacturer(connection, rawDescriptors, buffer);
-                        String prod = getProduct(connection, rawDescriptors,buffer);
+                        String prod = getProduct(connection, rawDescriptors, buffer);
                         port.setManufacturer(man + ": " + prod);
                         GXChipset chipset = getChipSet(man, device.getVendorId(), device.getProductId());
                         if (chipset != null) {
@@ -432,12 +435,10 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      */
     public GXPort[] getPorts() {
         synchronized (GXPort.class) {
-           if (mPorts.isEmpty())
-           {
-                UsbManager manager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
-                Map<String, UsbDevice> devices = manager.getDeviceList();
+            if (mPorts.isEmpty()) {
+                Map<String, UsbDevice> devices = mUsbManager.getDeviceList();
                 for (Map.Entry<String, UsbDevice> it : devices.entrySet()) {
-                    addPort(manager, it.getValue(), false);
+                    addPort(it.getValue(), false);
                 }
             }
         }
@@ -860,12 +861,10 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     /**
      * Set is Data Terminal Ready (DTR) signal enabled.
      *
-     * @param value
-     *            Is DTR enabled.
+     * @param value Is DTR enabled.
      */
-    public void setDtrEnable(final boolean value) throws IOException  {
-        if (isOpen())
-        {
+    public void setDtrEnable(final boolean value) throws IOException {
+        if (isOpen()) {
             boolean change = getDtrEnable() != value;
             mChipset.setDtrEnable(mConnection, value);
             if (change) {
@@ -891,10 +890,9 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      * Sets a value indicating whether the Request to Send (RTS) signal is
      * enabled during serial communication.
      *
-     * @param value
-     *            Is RTS enabled.
+     * @param value Is RTS enabled.
      */
-    public final void setRtsEnable(final boolean value) throws IOException  {
+    public final void setRtsEnable(final boolean value) throws IOException {
         if (isOpen()) {
             boolean change = getRtsEnable() != value;
             mChipset.setRtsEnable(mConnection, value);
@@ -914,19 +912,6 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
             return Chipset.NONE;
         }
         return mChipset.getChipset();
-    }
-
-    /**
-     * Set new serial port chipset.
-     *
-     * @param value New chipset.
-     */
-    public final void setChipset(final Chipset value) {
-        boolean change = mChipset == null || mChipset.getChipset() != value;
-        if (change) {
-            mChipset = getChipSet(value);
-            notifyPropertyChanged("Chipset");
-        }
     }
 
     /**
@@ -1099,10 +1084,11 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     @Override
     public final String getSettings() {
         StringBuilder sb = new StringBuilder();
-        String nl = System.getProperty("line.separator");
+        String nl = System.lineSeparator();
         if (mPort != null) {
             sb.append("<Port>");
-            sb.append(mPort.getPort());
+            //Serial number is saved because port changes every time when user joins the USB device.
+            sb.append(mPort.getSerial());
             sb.append("</Port>");
             sb.append(nl);
         }
@@ -1163,7 +1149,8 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
                         if ("Port".equalsIgnoreCase(target)) {
                             String name = readText(parser);
                             for (GXPort it : getPorts()) {
-                                if (name.equalsIgnoreCase(it.getPort())) {
+                                //Serial number is saved because port changes every time when user joins the USB device.
+                                if (name.equalsIgnoreCase(it.getSerial())) {
                                     setPort(it);
                                     found = true;
                                     break;
@@ -1190,37 +1177,16 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     }
 
     public boolean properties(final Activity activity) {
-        GXPropertiesBase.setSerial(this);
-        Intent intent = new Intent(activity, GXProperties.class);
+        Intent intent = new Intent(activity, GXPropertiesActivity.class);
+        intent.putExtra("mediaSettings", getSettings());
         activity.startActivity(intent);
         return true;
     }
 
     public Fragment properties() {
-        GXPropertiesBase.setSerial(this);
-        return new GXPropertiesFragment();
-    }
-
-    public void showBaudRate(View view) {
-        try {
-            int[] tmp = getAvailableBaudRates(null);
-            String[] values = new String[tmp.length];
-            int pos = 0;
-            for (int it : tmp) {
-                values[pos] = String.valueOf(it);
-                ++pos;
-            }
-            AlertDialog.Builder builder = new AlertDialog.Builder(mActivity);
-            builder.setTitle(R.string.baudRate)
-                    .setItems(values, new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // The 'which' argument contains the index position
-                            // of the selected item
-                        }
-                    });
-        } catch (Exception ex) {
-            Log.e("GXSerial", Objects.requireNonNull(ex.getMessage()));
-        }
+        final PropertiesViewModel propertiesViewModel = new ViewModelProvider((ViewModelStoreOwner) mActivity).get(PropertiesViewModel.class);
+        propertiesViewModel.setMedia(this);
+        return new PropertiesFragment();
     }
 
     @Override
@@ -1289,17 +1255,38 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
 
     @Override
     public final void addListener(final IGXMediaListener listener) {
+        if (mMediaListeners.contains(listener)) {
+            Log.w("GXSerial", "Listener already added.");
+        }
         mMediaListeners.add(listener);
         if (listener instanceof IGXSerialListener) {
+            if (mPortListeners.contains(listener)) {
+                Log.w("GXSerial", "Serial listener already added.");
+            }
             mPortListeners.add((IGXSerialListener) listener);
         }
     }
+
+    public final void addListener(final IGXSerialListener listener) {
+        mPortListeners.add(listener);
+        if (listener instanceof IGXMediaListener) {
+            mMediaListeners.add((IGXMediaListener) listener);
+        }
+    }
+
 
     @Override
     public final void removeListener(final IGXMediaListener listener) {
         mMediaListeners.remove(listener);
         if (listener instanceof IGXSerialListener) {
             mPortListeners.remove((IGXSerialListener) listener);
+        }
+    }
+
+    public final void removeListener(final IGXSerialListener listener) {
+        mPortListeners.remove(listener);
+        if (listener instanceof IGXMediaListener) {
+            mMediaListeners.remove((IGXMediaListener) listener);
         }
     }
 
@@ -1326,5 +1313,15 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     @Override
     public Object getAsyncWaitHandle() {
         return null;
+    }
+
+    /**
+     * Stop listen events.
+     */
+    public void Destroy() {
+        if (mUsbReceiver != null) {
+            mContext.unregisterReceiver(mUsbReceiver);
+            mUsbReceiver = null;
+        }
     }
 }

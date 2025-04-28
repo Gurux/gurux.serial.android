@@ -1,13 +1,13 @@
 <resources>
-    <string name="app_name">gurux.serial.android</string>
-    <string name="properties">Properties:</string>
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
+    <string name="app_name">gurux serial</string>
+    <string name="properties">Properties</string>
     <string name="baudRate">Baud rate</string>
-    <string name="dataBits">Databits</string>
+    <string name="dataBits">Data bits</string>
     <string name="parity">Parity</string>
     <string name="stopBits">Stop bits</string>
     <string name="port">Port</string>
     <string name="chipset">Chipset</string>
-    <string name="infoBtn">Info</string>
+    <string name="info">Info</string>
+    <string name="invalidSerialports">Serial ports not connected.</string>
+    <string name="connectionEstablished">Settings cannot be changed while the connection is established.</string>
 </resources>

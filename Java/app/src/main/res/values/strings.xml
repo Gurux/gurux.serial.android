@@ -1,16 +1,19 @@
 <resources>
-    <string name="app_name">Gurux.Serial</string>
+    <string name="app_name">Gurux serial</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Gurux serial</string>
+    <string name="nav_header_subtitle">gurux@gurux.fi</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="send">Send</string>
+    <string name="hex">Hex</string>
+    <string name="clear">Clear</string>
+    <string name="receivedData">Received data</string>
+    <string name="action_settings">Settings</string>
+    <string name="menu_home">Home</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
-    <string name="sendBtn">Send</string>
-    <string name="Hex">Hex</string>
-    <string name="refresh">Refresh</string>
-    <string name="port">Port</string>
-    <string name="baudrate">Baud Rate</string>
-    <string name="dataBits">Data Bits</string>
-    <string name="parity">Parity</string>
-    <string name="stopBits">Stop Bits</string>
-    <string name="clearBtn">Clear</string>
-    <string name="infoBtn">Info</string>
-    <string name="sendData">sendData</string>
+    <string name="saved">Settings saved.</string>
+    <string name="info">Info</string>
+    <string name="copyright">Copyright (c) 1998-2025 Gurux Ltd. All rights reserved.</string>
 </resources>
