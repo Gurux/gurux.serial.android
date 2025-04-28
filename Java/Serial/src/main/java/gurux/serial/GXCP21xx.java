@@ -51,7 +51,7 @@ class GXCP21xx extends GXChipset {
     }
 
     public static boolean isUsing(final String stringManufacturer, final int vendor, final int product) {
-         /* Renesas RX610 RX-Stick */
+        /* Renesas RX610 RX-Stick */
         if ((vendor == 0x045B && product == 0x0053)
                 /* AKTAKOM ACE-1001 cable */
                 || (vendor == 0x0471 && product == 0x066A)
@@ -386,7 +386,7 @@ class GXCP21xx extends GXChipset {
 
     public boolean open(GXSerial serial, UsbDeviceConnection connection, byte[] rawDescriptors) throws IOException {
         int ret;
-        int tmp = 0;
+        int tmp;
         byte[] flow = new byte[16];
         byte[] data = new byte[4];
         ret = connection.controlTransfer(HOST_TO_DEVICE_REQUEST_TYPE, ENABLE_INTERFACE,
@@ -427,6 +427,7 @@ class GXCP21xx extends GXChipset {
         }
         return true;
     }
+
     @Override
     boolean getDtrEnable(final UsbDeviceConnection connection) {
         throw new UnsupportedOperationException();

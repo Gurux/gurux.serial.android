@@ -34,6 +34,8 @@
 
 package gurux.serial;
 
+import androidx.annotation.NonNull;
+
 import gurux.common.GXCommon;
 import gurux.serial.enums.Chipset;
 
@@ -186,6 +188,7 @@ public class GXPort {
     }
 
 
+    @NonNull
     @Override
     public String toString() {
         if (mProduct != null && !mProduct.isEmpty()) {
@@ -198,8 +201,8 @@ public class GXPort {
     }
 
     public String getInfo() {
-        String nl = System.getProperty("line.separator");
-        StringBuffer sb = new StringBuffer();
+        String nl = System.lineSeparator();
+        StringBuilder sb = new StringBuilder();
         sb.append("Manufacturer info: ");
         sb.append(mManufacturer);
         sb.append(nl);

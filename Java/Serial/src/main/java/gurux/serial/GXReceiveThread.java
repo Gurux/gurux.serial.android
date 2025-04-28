@@ -123,7 +123,7 @@ class GXReceiveThread extends Thread {
                 mParentMedia.getSyncBase().appendData(buffer, 0, len);
                 // Search End of Packet if given.
                 if (mParentMedia.getEop() != null) {
-                    if (mParentMedia.getEop() instanceof Array) {
+                    if (mParentMedia.getEop() instanceof Object[]) {
                         for (Object eop : (Object[]) mParentMedia.getEop()) {
                             totalCount = GXSynchronousMediaBase.indexOf(buffer,
                                     GXSynchronousMediaBase.getAsByteArray(eop), 0, len);
@@ -180,12 +180,10 @@ class GXReceiveThread extends Thread {
                         ByteArrayOutputStream tmp = new ByteArrayOutputStream();
                         tmp.write(buff, 0, len);
                         while ((len = mConnection.bulkTransfer(mInput, buff, 0, buff.length, mParentMedia.getReceiveDelay() - elapsedTime)) > 0) {
-                            if (mChipset != null && len > 0) {
+                            if (mChipset != null) {
                                 len = mChipset.removeStatus(buff, len, buff.length);
                             }
-                            if (len > 0) {
-                                tmp.write(buff, 0, len);
-                            }
+                            tmp.write(buff, 0, len);
                             elapsedTime = (int) (System.currentTimeMillis() - start);
                             if (mParentMedia.getReceiveDelay() - elapsedTime < 1) {
                                 break;

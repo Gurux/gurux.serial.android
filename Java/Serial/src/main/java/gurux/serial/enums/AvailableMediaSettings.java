@@ -36,8 +36,6 @@ package gurux.serial.enums;
 
 import android.util.SparseArray;
 
-import java.util.HashMap;
-
 /**
  * Describes available settings for the media.
  */
@@ -66,7 +64,7 @@ public enum AvailableMediaSettings {
     /**
      * Integer value of enumeration.
      */
-    private int intValue;
+    final private int intValue;
 
     /**
      * Collection of integer and enumeration values.
@@ -81,7 +79,7 @@ public enum AvailableMediaSettings {
     private static SparseArray<AvailableMediaSettings> getMappings() {
         synchronized (AvailableMediaSettings.class) {
             if (mappings == null) {
-                mappings = new SparseArray<AvailableMediaSettings>();
+                mappings = new SparseArray<>();
             }
         }
         return mappings;

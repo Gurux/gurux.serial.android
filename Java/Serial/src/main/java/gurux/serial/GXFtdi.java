@@ -37,6 +37,7 @@ package gurux.serial;
 import android.hardware.usb.UsbDeviceConnection;
 
 import java.io.IOException;
+
 import gurux.io.BaudRate;
 import gurux.serial.enums.Chipset;
 
@@ -48,7 +49,7 @@ class GXFtdi extends GXChipset {
     public Chipset getChipset() {
         return Chipset.FTDI;
     }
-     /* Setup Data Constants */
+    /* Setup Data Constants */
 
     private static final int USB_SETUP_HOST_TO_DEVICE = 0x00;
     // Device Request bmRequestType transfer direction - host to device transfer
@@ -131,7 +132,7 @@ class GXFtdi extends GXChipset {
     }
 
     private static int getBaudRateValue(BaudRate baudRate) {
-        int value = 0;
+        int value;
         switch (baudRate) {
             case BAUD_RATE_1200:
                 value = 0x09C4;
@@ -196,7 +197,7 @@ class GXFtdi extends GXChipset {
     @Override
     public void setDtrEnable(final UsbDeviceConnection connection, final boolean value) throws IOException {
         int ret = connection.controlTransfer(FTDI_SIO_SET_DATA_REQUEST_TYPE, FTDI_SIO_MODEM_CTRL,
-                value ? SIO_SET_DTR_ENABLED : SIO_SET_DTR_DISABLED, 0 , null, 0, 0);
+                value ? SIO_SET_DTR_ENABLED : SIO_SET_DTR_DISABLED, 0, null, 0, 0);
         if (ret != 0) {
             throw new IOException("Set DTR failed: " + ret);
         }
@@ -209,9 +210,9 @@ class GXFtdi extends GXChipset {
     }
 
     @Override
-    public void setRtsEnable(final UsbDeviceConnection connection, final boolean value) throws IOException  {
+    public void setRtsEnable(final UsbDeviceConnection connection, final boolean value) throws IOException {
         int ret = connection.controlTransfer(FTDI_SIO_SET_DATA_REQUEST_TYPE, FTDI_SIO_MODEM_CTRL,
-                value ? SIO_SET_RTS_ENABLED : SIO_SET_RTS_DISABLED, 0 , null, 0, 0);
+                value ? SIO_SET_RTS_ENABLED : SIO_SET_RTS_DISABLED, 0, null, 0, 0);
         if (ret != 0) {
             throw new IOException("Set DTR failed: " + ret);
         }
