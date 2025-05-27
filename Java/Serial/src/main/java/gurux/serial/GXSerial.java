@@ -364,7 +364,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
 
     void addPort(final UsbDevice device, final boolean notify) {
         byte[] buffer = new byte[255];
-        PendingIntent permissionIntent = PendingIntent.getBroadcast(mActivity, 0,
+        PendingIntent permissionIntent = PendingIntent.getBroadcast(mContext, 0,
                 new Intent(GXUsbReceiver.ACTION_USB_PERMISSION),
                 PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
         UsbEndpoint in = null, out = null;
