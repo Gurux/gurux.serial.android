@@ -34,6 +34,7 @@
 
 package gurux.serial;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -208,6 +209,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
      *
      * @param context Context.
      */
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
     public GXSerial(Context context) {
         if (context == null) {
             throw new IllegalArgumentException("context");
@@ -221,7 +223,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             mContext.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_EXPORTED);
         } else {
-            mContext.registerReceiver(mUsbReceiver, filter, Context.RECEIVER_EXPORTED);
+            mContext.registerReceiver(mUsbReceiver, filter);
         }
         mSyncBase = new GXSynchronousMediaBase(200);
         setConfigurableSettings(AvailableMediaSettings.ALL.getValue());
