@@ -1,20 +1,21 @@
 [versions]
-agp = "8.7.3"
-guruxCommonAndroid = "2.0.2"
+agp = "8.12.1"
+guruxCommonAndroid = "3.0.4"
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-appcompat = "1.7.0"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
+appcompat = "1.7.1"
 material = "1.12.0"
 constraintlayout = "2.2.1"
-lifecycleLivedataKtx = "2.8.7"
-lifecycleViewmodelKtx = "2.8.7"
-navigationFragment = "2.8.9"
-navigationUi = "2.8.9"
+lifecycleLivedataKtx = "2.9.2"
+lifecycleViewmodelKtx = "2.9.2"
+navigationFragment = "2.9.3"
+navigationUi = "2.9.3"
 preference = "1.2.1"
+jreleaser = "1.19.0"
 
 [libraries]
-guruxCommonAndroid = { module = "org.gurux:Gurux.Common.Android", version.ref = "guruxCommonAndroid" }
+guruxCommonAndroid = { module = "org.gurux:gurux.common.android", version.ref = "guruxCommonAndroid" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -30,4 +31,4 @@ preference = { group = "androidx.preference", name = "preference", version.ref =
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-
+jreleaser = { id = "org.jreleaser", version.ref = "jreleaser" }

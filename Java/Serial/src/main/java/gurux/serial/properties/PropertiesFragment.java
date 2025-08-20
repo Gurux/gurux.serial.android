@@ -35,7 +35,6 @@
 package gurux.serial.properties;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -160,7 +159,7 @@ public class PropertiesFragment extends Fragment implements IGXSerialListener {
     }
 
     private String getPort() {
-        return getString(R.string.port) + System.lineSeparator() + String.valueOf(mSerial.getPort());
+        return getString(R.string.port) + System.lineSeparator() + mSerial.getPort();
     }
 
     private String getBaudRate() {
@@ -246,19 +245,34 @@ public class PropertiesFragment extends Fragment implements IGXSerialListener {
      * Update baud rate.
      */
     private void updateBaudRate() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        final int tmp[] = GXSerial.getAvailableBaudRates(mSerial.getPort());
-        String[] values = new String[tmp.length];
-        int actual = mSerial.getBaudRate().getValue();
-        builder.setTitle(R.string.baudRate)
-                .setSingleChoiceItems(values, actual, (dialog, which) -> {
-                    mSerial.setBaudRate(BaudRate.forValue(tmp[which]));
-                    rows.set(1, getBaudRate());
-                    ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
-                    dialog.dismiss();
-                })
-                .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel())
-                .show();
+        try {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            final int[] tmp = GXSerial.getAvailableBaudRates(mSerial.getPort());
+            String[] values = new String[tmp.length];
+            int pos = 0;
+            int selected = -1;
+            int actual = mSerial.getBaudRate().getValue();
+            for (int it : tmp) {
+                values[pos] = String.valueOf(it);
+                //Get selected item.
+                if (actual == it) {
+                    selected = pos;
+                }
+                ++pos;
+            }
+            builder.setTitle(R.string.baudRate)
+                    .setSingleChoiceItems(values, selected, (dialog, which) -> {
+                        mSerial.setBaudRate(BaudRate.forValue(tmp[which]));
+                        rows.set(1, getBaudRate());
+                        ((BaseAdapter) listView.getAdapter()).notifyDataSetChanged();
+                        dialog.dismiss();
+                    })
+                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel())
+                    .show();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -266,7 +280,7 @@ public class PropertiesFragment extends Fragment implements IGXSerialListener {
      */
     private void updateDataBits() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        final int tmp[] = new int[]{6, 7, 8};
+        final int[] tmp = new int[]{6, 7, 8};
         String[] values = new String[tmp.length];
         int actual = mSerial.getDataBits();
         int selected = -1;
