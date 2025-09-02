@@ -112,7 +112,9 @@ class GXFtdi extends GXChipset {
     public static boolean isUsing(final String stringManufacturer, final int vendor, final int product) {
         return (vendor == 1027 && (product == 24557) || product == 24577 || product == 24597) ||
                 //Tespro
-                (vendor == 403 && product == 6001) ||
+                (vendor == 0x403 && product == 0x6001) ||
+                //KoCoS
+                (vendor == 0x403 && product == 0x6015) ||
                 "FTDI".equalsIgnoreCase(stringManufacturer);
     }
 

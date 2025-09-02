@@ -75,6 +75,11 @@ public class GXPort {
     private String mSerial;
 
     /**
+     * Version number.
+     */
+    private String mVersion;
+
+    /**
      * Raw descriptors.
      */
     private byte[] mRawDescriptors;
@@ -209,14 +214,17 @@ public class GXPort {
         if (mVendorId != 0) {
             sb.append("Vendor: ");
             sb.append(mVendor);
-            sb.append(" ID: ");
+            sb.append(" ID: 0x");
             sb.append(Integer.toHexString(mVendorId));
             sb.append(nl);
         }
         sb.append("Product: ");
         sb.append(mProduct);
-        sb.append(" ID: ");
+        sb.append(" ID: 0x");
         sb.append(Integer.toHexString(mProductId));
+        sb.append(nl);
+        sb.append("Version: ");
+        sb.append(mVersion);
         sb.append(nl);
         if (mSerial != null) {
             sb.append("Serial: ");
@@ -249,7 +257,7 @@ public class GXPort {
     /**
      * @param value Serial number.
      */
-    public void setSerial(String value) {
+    public void setSerial(final String value) {
         mSerial = value;
     }
 
@@ -263,7 +271,23 @@ public class GXPort {
     /**
      * @param value Raw descriptors.
      */
-    public void setRawDescriptors(byte[] value) {
+    public void setRawDescriptors(final byte[] value) {
         mRawDescriptors = value;
+    }
+
+    /**
+     *
+     * @return Version number.
+     */
+    public String getVersion() {
+        return mVersion;
+    }
+
+    /**
+     *
+     * @param value Version number.
+     */
+    public void setVersion(final String value) {
+        this.mVersion = value;
     }
 }

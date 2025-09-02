@@ -395,6 +395,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
                     port.setPort(device.getDeviceName());
                     port.setVendorId(device.getVendorId());
                     port.setProductId(device.getProductId());
+                    port.setVersion(device.getVersion());
                     Map.Entry<String, String> info = find(mContext, device.getVendorId(), device.getProductId());
                     if (info != null) {
                         port.setVendor(info.getKey());
