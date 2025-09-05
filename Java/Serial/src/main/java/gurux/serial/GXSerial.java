@@ -40,6 +40,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
 import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
@@ -1179,7 +1180,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
         }
     }
 
-    public void  properties(final Activity activity) {
+    public void properties(final Activity activity) {
         Intent intent = new Intent(activity, GXPropertiesActivity.class);
         intent.putExtra("mediaSettings", getSettings());
         activity.startActivity(intent);
@@ -1328,8 +1329,17 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     }
 
     @Override
-    public int getIconResId()
-    {
+    public int getIconResId() {
         return R.drawable.ic_launcher_serial;
+    }
+
+    @Override
+    public String getVersion() {
+        try {
+            PackageInfo packageInfo = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
+            return packageInfo.versionName;
+        } catch (Exception ex) {
+            return null;
+        }
     }
 }
