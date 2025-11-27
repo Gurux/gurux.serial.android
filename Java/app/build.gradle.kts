@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId = "gurux.serial.android"
-        minSdk = 31
+        minSdk = 29
         targetSdk = 36
         versionCode = 2
         versionName = project.version.toString()

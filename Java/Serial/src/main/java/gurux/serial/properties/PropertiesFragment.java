@@ -35,6 +35,9 @@
 package gurux.serial.properties;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -92,17 +95,20 @@ public class PropertiesFragment extends Fragment implements IGXSerialListener {
                 binding.infoBtn.setOnClickListener(v -> {
                     try {
                         GXPort port = mSerial.getPort();
-                        String info = "";
-                        if (port != null) {
-                            info = port.getInfo();
-                        }
+                        final String info = port != null ? port.getInfo() : "";
                         new AlertDialog.Builder(getActivity())
-                                .setTitle("Info")
+                                .setTitle(R.string.info)
                                 .setMessage(info)
                                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                                     //Do nothing.
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_info)
+                                .setNeutralButton(android.R.string.copy, (dialog, which) -> {
+                                    ClipboardManager clipboard =
+                                            (ClipboardManager) requireActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                                    ClipData clip = ClipData.newPlainText("Gurux.Serial", info);
+                                    clipboard.setPrimaryClip(clip);
+                                })
                                 .show();
                     } catch (Exception ex) {
                         Log.e("Serial", Objects.requireNonNull(ex.getMessage()));
@@ -269,8 +275,7 @@ public class PropertiesFragment extends Fragment implements IGXSerialListener {
                     })
                     .setNegativeButton(android.R.string.cancel, (dialog, which) -> dialog.cancel())
                     .show();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

@@ -8,6 +8,6 @@
     <string name="port">Port</string>
     <string name="chipset">Chipset</string>
     <string name="info">Info</string>
-    <string name="invalidSerialports">Serial ports not connected.</string>
+    <string name="invalidSerialports">Serial port not connected.</string>
     <string name="connectionEstablished">Settings cannot be changed while the connection is established.</string>
 </resources>

@@ -68,8 +68,8 @@ class GXProfilic extends GXChipset {
         if ((vendor == 0x557 && product == 0x2008) ||
                 /*Prolific BF-810*/
                 (vendor == 1659 && product == 8963) ||
-            /*CadyCE*/
-            (vendor == 1659 && product == 0x23A3)) {
+                /*CadyCE*/
+                (vendor == 1659 && product == 0x23A3)) {
             return true;
         }
         return false;
@@ -135,13 +135,14 @@ class GXProfilic extends GXChipset {
         }
         return true;
     }
+
     @Override
     boolean getDtrEnable(final UsbDeviceConnection connection) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    void setDtrEnable(final UsbDeviceConnection connection, boolean value)  {
+    void setDtrEnable(final UsbDeviceConnection connection, boolean value) {
         throw new UnsupportedOperationException();
     }
 
