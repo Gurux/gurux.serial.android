@@ -870,7 +870,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     public void setDtrEnable(final boolean value) throws IOException {
         if (isOpen()) {
             boolean change = getDtrEnable() != value;
-            mChipset.setDtrEnable(mConnection, value);
+            mChipset.setDtrEnable(this, mConnection, value);
             if (change) {
                 notifyPropertyChanged("DtrEnable");
             }
@@ -899,7 +899,7 @@ public class GXSerial implements IGXMedia2, AutoCloseable {
     public final void setRtsEnable(final boolean value) throws IOException {
         if (isOpen()) {
             boolean change = getRtsEnable() != value;
-            mChipset.setRtsEnable(mConnection, value);
+            mChipset.setRtsEnable(this, mConnection, value);
             if (change) {
                 notifyPropertyChanged("RtsEnable");
             }

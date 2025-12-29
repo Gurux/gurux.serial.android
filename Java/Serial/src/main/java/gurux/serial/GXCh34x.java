@@ -34,7 +34,6 @@
 
 package gurux.serial;
 
-import android.hardware.usb.UsbConstants;
 import android.hardware.usb.UsbDeviceConnection;
 
 import java.io.IOException;
@@ -51,10 +50,13 @@ class GXCh34x extends GXChipset {
         return Chipset.CH34X;
     }
 
-    final static int OUT_REQTYPE = 0x41;
-    final static int IN_REQTYPE = UsbConstants.USB_TYPE_VENDOR | UsbConstants.USB_DIR_IN;
+    private boolean dtr = false;
+    private boolean rts = false;
 
-    public static boolean isUsing(final String stringManufacturer, final int vendor, final int product) {
+    private static final int BIT_DTR = 1 << 5; // DTR = bit5
+    private static final int BIT_RTS = 1 << 6; // RTS = bit6
+
+    public static boolean isUsing(final String manufacturer, final int vendor, final int product) {
         /*QinHeng Electronics and QinHeng Electronics*/
         return vendor == 0x1a86;
     }
@@ -144,7 +146,7 @@ class GXCh34x extends GXChipset {
         value2 = 0x88;
         int ret = connection.controlTransfer(64, 161, value1, value2, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Status failed: " + String.valueOf(ret));
+            throw new IOException("Status failed: " + ret);
         }
     }
 
@@ -152,30 +154,30 @@ class GXCh34x extends GXChipset {
         byte[] buffer = new byte[8];
         int ret = connection.controlTransfer(64, 161, 0, 0, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Status failed: " + String.valueOf(ret));
+            throw new IOException("Status failed: " + ret);
         }
         ret = connection.controlTransfer(192, 95, 0, 0, buffer, buffer.length, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Init failed1." + String.valueOf(ret));
+            throw new IOException("Init failed1." + ret);
         }
         //Set baud rate.
         ret = connection.controlTransfer(64, 154, 4882, 55682, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Init set baud rate failed: " + String.valueOf(ret));
+            throw new IOException("Init set baud rate failed: " + ret);
         }
         ret = connection.controlTransfer(64, 154, 3884, 4, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Init failed3: " + String.valueOf(ret));
+            throw new IOException("Init failed3: " + ret);
         }
         //End baud rate.
         ret = connection.controlTransfer(64, 154, 10023, 0, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Init End baud rate failed: " + String.valueOf(ret));
+            throw new IOException("Init End baud rate failed: " + ret);
         }
         //writeHandshakeByte
         ret = connection.controlTransfer(64, 164, 255, 0, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
-            throw new IOException("Init writeHandshakeByte failed: " + String.valueOf(ret));
+            throw new IOException("Init writeHandshakeByte failed: " + ret);
         }
         setConfig(serial, connection);
         //Set baud rate
@@ -185,21 +187,42 @@ class GXCh34x extends GXChipset {
 
     @Override
     boolean getDtrEnable(final UsbDeviceConnection connection) {
-        throw new UnsupportedOperationException();
+        return dtr;
     }
 
     @Override
-    void setDtrEnable(final UsbDeviceConnection connection, final boolean value) {
-        throw new UnsupportedOperationException();
+    void setDtrEnable(final GXSerial serial, final UsbDeviceConnection connection, final boolean value)
+            throws IOException {
+        dtr = value;
+        writeHandshake(serial, connection);
     }
 
     @Override
     boolean getRtsEnable(final UsbDeviceConnection connection) {
-        throw new UnsupportedOperationException();
+        return rts;
     }
 
     @Override
-    void setRtsEnable(final UsbDeviceConnection connection, final boolean value) {
-        throw new UnsupportedOperationException();
+    void setRtsEnable(final GXSerial serial, final UsbDeviceConnection connection, final boolean value)
+            throws IOException {
+        rts = value;
+        writeHandshake(serial, connection);
+    }
+
+    private void writeHandshake(GXSerial serial, UsbDeviceConnection connection) throws IOException {
+        int control = (dtr ? BIT_DTR : 0) | (rts ? BIT_RTS : 0);
+        int wValue = ~control;
+        int ret = connection.controlTransfer(
+                65,
+                0xA4,
+                wValue,
+                0,
+                null,
+                0,
+                serial.getWriteTimeout()
+        );
+        if (ret != 0) {
+            throw new IOException("Set DTR failed: " + ret);
+        }
     }
 }

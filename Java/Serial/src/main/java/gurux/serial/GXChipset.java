@@ -56,8 +56,9 @@ abstract class GXChipset {
 
     /**
      * Remove status bytes from data.
-     * @param data Received data.
-     * @param size Data length.
+     *
+     * @param data    Received data.
+     * @param size    Data length.
      * @param maxSize Max packet length.
      * @return Data size.
      */
@@ -68,11 +69,12 @@ abstract class GXChipset {
     /**
      * Is vendor using this chip set.
      *
-     * @param vendor  Vendor ID.
-     * @param product Product ID.
+     * @param manufacturer Manufacturer ID.
+     * @param vendor       Vendor ID.
+     * @param product      Product ID.
      * @return True, if used chipset.
      */
-    static boolean isUsing(final String stringManufacturer, final int vendor, final int product) {
+    static boolean isUsing(final String manufacturer, final int vendor, final int product) {
         throw new RuntimeException("isUsing is not implemented.");
     }
 
@@ -88,10 +90,9 @@ abstract class GXChipset {
     /**
      * Set is Data Terminal Ready (DTR) signal enabled.
      *
-     * @param value
-     *            Is DTR enabled.
+     * @param value Is DTR enabled.
      */
-    abstract void setDtrEnable(final UsbDeviceConnection connection, final boolean value) throws IOException;
+    abstract void setDtrEnable(GXSerial serial, final UsbDeviceConnection connection, final boolean value) throws IOException;
 
     /**
      * Gets a value indicating whether the Request to Send (RTS) signal is
@@ -105,8 +106,7 @@ abstract class GXChipset {
      * Sets a value indicating whether the Request to Send (RTS) signal is
      * enabled during serial communication.
      *
-     * @param value
-     *            Is RTS enabled.
+     * @param value Is RTS enabled.
      */
-    abstract void setRtsEnable(final UsbDeviceConnection connection, final boolean value)throws IOException;
+    abstract void setRtsEnable(GXSerial serial, final UsbDeviceConnection connection, final boolean value) throws IOException;
 }

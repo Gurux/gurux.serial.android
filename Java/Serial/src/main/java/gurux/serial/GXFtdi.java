@@ -109,13 +109,13 @@ class GXFtdi extends GXChipset {
     private boolean mDtrEnable = false;
     private boolean mRtsEnable = false;
 
-    public static boolean isUsing(final String stringManufacturer, final int vendor, final int product) {
+    public static boolean isUsing(final String manufacturer, final int vendor, final int product) {
         return (vendor == 1027 && (product == 24557) || product == 24577 || product == 24597) ||
                 //Tespro
                 (vendor == 0x403 && product == 0x6001) ||
                 //KoCoS
                 (vendor == 0x403 && product == 0x6015) ||
-                "FTDI".equalsIgnoreCase(stringManufacturer);
+                "FTDI".equalsIgnoreCase(manufacturer);
     }
 
     @Override
@@ -197,9 +197,9 @@ class GXFtdi extends GXChipset {
     }
 
     @Override
-    public void setDtrEnable(final UsbDeviceConnection connection, final boolean value) throws IOException {
+    public void setDtrEnable(final GXSerial serial, final UsbDeviceConnection connection, final boolean value) throws IOException {
         int ret = connection.controlTransfer(FTDI_SIO_SET_DATA_REQUEST_TYPE, FTDI_SIO_MODEM_CTRL,
-                value ? SIO_SET_DTR_ENABLED : SIO_SET_DTR_DISABLED, 0, null, 0, 0);
+                value ? SIO_SET_DTR_ENABLED : SIO_SET_DTR_DISABLED, 0, null, 0,  serial.getWriteTimeout());
         if (ret != 0) {
             throw new IOException("Set DTR failed: " + ret);
         }
@@ -212,9 +212,9 @@ class GXFtdi extends GXChipset {
     }
 
     @Override
-    public void setRtsEnable(final UsbDeviceConnection connection, final boolean value) throws IOException {
+    public void setRtsEnable(final GXSerial serial, final UsbDeviceConnection connection, final boolean value) throws IOException {
         int ret = connection.controlTransfer(FTDI_SIO_SET_DATA_REQUEST_TYPE, FTDI_SIO_MODEM_CTRL,
-                value ? SIO_SET_RTS_ENABLED : SIO_SET_RTS_DISABLED, 0, null, 0, 0);
+                value ? SIO_SET_RTS_ENABLED : SIO_SET_RTS_DISABLED, 0, null, 0,  serial.getWriteTimeout());
         if (ret != 0) {
             throw new IOException("Set DTR failed: " + ret);
         }

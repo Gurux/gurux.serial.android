@@ -50,7 +50,7 @@ class GXCP21xx extends GXChipset {
         return Chipset.CP21XX;
     }
 
-    public static boolean isUsing(final String stringManufacturer, final int vendor, final int product) {
+    public static boolean isUsing(final String manufacturer, final int vendor, final int product) {
         /* Renesas RX610 RX-Stick */
         if ((vendor == 0x045B && product == 0x0053)
                 /* AKTAKOM ACE-1001 cable */
@@ -434,7 +434,7 @@ class GXCP21xx extends GXChipset {
     }
 
     @Override
-    void setDtrEnable(final UsbDeviceConnection connection, boolean value) {
+    void setDtrEnable(final GXSerial serial, final UsbDeviceConnection connection, boolean value) {
         throw new UnsupportedOperationException();
     }
 
@@ -444,7 +444,7 @@ class GXCP21xx extends GXChipset {
     }
 
     @Override
-    void setRtsEnable(final UsbDeviceConnection connection, boolean value) {
+    void setRtsEnable(final GXSerial serial, final UsbDeviceConnection connection, boolean value) {
         throw new UnsupportedOperationException();
     }
 }

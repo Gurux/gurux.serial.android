@@ -38,7 +38,6 @@ import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbEndpoint;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Array;
 
 import gurux.common.GXSynchronousMediaBase;
 import gurux.common.ReceiveEventArgs;
