@@ -61,7 +61,7 @@ class GXCh34x extends GXChipset {
         return vendor == 0x1a86;
     }
 
-    private void setBaudRate(UsbDeviceConnection connection, int baudRate) throws IOException {
+    private void setBaudRate(UsbDeviceConnection connection, int baudRate, int chipVersion) throws IOException {
         int a, b;
         switch (baudRate) {
             case 2400:
@@ -90,6 +90,11 @@ class GXCh34x extends GXChipset {
                 break;
             default:
                 throw new IOException("Invalid baud rate: " + baudRate);
+        }
+        // Send short packets without waiting for a full buffer. Older chips
+        // can interpret this bit differently, so only enable it after 0x27.
+        if (chipVersion > 0x27) {
+            a |= 0x80;
         }
         int ret = connection.controlTransfer(64, 0x9a, 0x1312, a, null, 0, 1000);
         if (ret < 0) {
@@ -142,7 +147,8 @@ class GXCh34x extends GXChipset {
                 throw new IOException("Invalid data bits value.");
         }
         value1 = (value1 | 192);
-        value1 = (156 | value1 << 8) & 0xFF;
+        // Build 16-bit line control value: low byte 0x9C, high byte has parity/stop/data bits.
+        value1 = (0x9C | (value1 << 8)) & 0xFFFF;
         value2 = 0x88;
         int ret = connection.controlTransfer(64, 161, value1, value2, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
@@ -151,15 +157,16 @@ class GXCh34x extends GXChipset {
     }
 
     public boolean open(GXSerial serial, UsbDeviceConnection connection, byte[] rawDescriptors) throws IOException {
-        byte[] buffer = new byte[8];
+        byte[] buffer = new byte[2];
         int ret = connection.controlTransfer(64, 161, 0, 0, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
             throw new IOException("Status failed: " + ret);
         }
         ret = connection.controlTransfer(192, 95, 0, 0, buffer, buffer.length, serial.getWriteTimeout());
-        if (ret < 0) {
-            throw new IOException("Init failed1." + ret);
+        if (ret != buffer.length) {
+            throw new IOException("Failed to read chip version: expected 2 bytes, got " + ret);
         }
+        int chipVersion = buffer[0] & 0xFF;
         //Set baud rate.
         ret = connection.controlTransfer(64, 154, 4882, 55682, null, 0, serial.getWriteTimeout());
         if (ret < 0) {
@@ -181,7 +188,7 @@ class GXCh34x extends GXChipset {
         }
         setConfig(serial, connection);
         //Set baud rate
-        setBaudRate(connection, serial.getBaudRate().getValue());
+        setBaudRate(connection, serial.getBaudRate().getValue(), chipVersion);
         return true;
     }
 
@@ -211,9 +218,9 @@ class GXCh34x extends GXChipset {
 
     private void writeHandshake(GXSerial serial, UsbDeviceConnection connection) throws IOException {
         int control = (dtr ? BIT_DTR : 0) | (rts ? BIT_RTS : 0);
-        int wValue = ~control;
+        int wValue = (~control) & 0xFFFF;
         int ret = connection.controlTransfer(
-                65,
+            64,
                 0xA4,
                 wValue,
                 0,

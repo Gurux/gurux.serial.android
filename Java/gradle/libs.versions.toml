@@ -1,18 +1,18 @@
 [versions]
-agp = "9.2.0"
-guruxCommonAndroid = "3.0.7"
+agp = "9.4.0"
+guruxCommonAndroid = "3.0.8"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
-appcompat = "1.7.1"
-material = "1.13.0"
-constraintlayout = "2.2.1"
-lifecycleLivedataKtx = "2.10.0"
-lifecycleViewmodelKtx = "2.10.0"
-navigationFragment = "2.9.8"
-navigationUi = "2.9.8"
+appcompat = "1.8.0"
+material = "1.14.0"
+constraintlayout = "2.2.2"
+lifecycleLivedataKtx = "2.11.0"
+lifecycleViewmodelKtx = "2.11.0"
+navigationFragment = "2.10.1"
+navigationUi = "2.10.1"
 preference = "1.2.1"
-jreleaser = "1.23.0"
+jreleaser = "1.26.0"
 
 [libraries]
 guruxCommonAndroid = { module = "org.gurux:gurux.common.android", version.ref = "guruxCommonAndroid" }

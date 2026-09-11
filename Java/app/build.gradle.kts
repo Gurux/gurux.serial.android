@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace = "gurux.serial.android"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "gurux.serial.android"
         minSdk = 29
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 2
         versionName = project.version.toString()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

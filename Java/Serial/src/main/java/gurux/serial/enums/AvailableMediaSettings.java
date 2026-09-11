@@ -36,6 +36,8 @@ package gurux.serial.enums;
 
 import android.util.SparseArray;
 
+import gurux.io.BaudRate;
+
 /**
  * Describes available settings for the media.
  */
@@ -69,20 +71,12 @@ public enum AvailableMediaSettings {
     /**
      * Collection of integer and enumeration values.
      */
-    private static SparseArray<AvailableMediaSettings> mappings;
+    private static final SparseArray<AvailableMediaSettings> MAPPINGS = new SparseArray<>();
 
-    /**
-     * Get mappings.
-     *
-     * @return Hash map of enumeration and integer values.
-     */
-    private static SparseArray<AvailableMediaSettings> getMappings() {
-        synchronized (AvailableMediaSettings.class) {
-            if (mappings == null) {
-                mappings = new SparseArray<>();
-            }
+    static {
+        for (AvailableMediaSettings rate : AvailableMediaSettings.values()) {
+            MAPPINGS.put(rate.intValue, rate);
         }
-        return mappings;
     }
 
     /**
@@ -92,9 +86,6 @@ public enum AvailableMediaSettings {
      */
     AvailableMediaSettings(final int value) {
         intValue = value;
-        synchronized (AvailableMediaSettings.class) {
-            getMappings().put(value, this);
-        }
     }
 
     /**
@@ -113,6 +104,6 @@ public enum AvailableMediaSettings {
      * @return Enumerator value.
      */
     public static AvailableMediaSettings forValue(final int value) {
-        return getMappings().get(value);
+        return MAPPINGS.get(value);
     }
 }
